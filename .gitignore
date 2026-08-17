@@ -1,0 +1,12 @@
+# Private
+.env
+local.properties
+
+# Build artifacts
+.gradle/
+build/
+*.apk
+*.aab
+
+# IDE workspace state
+.idea
