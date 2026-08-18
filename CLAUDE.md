@@ -43,17 +43,21 @@ When explaining code or suggesting patterns, always note:
 
 ## Project Structure
 ```
-app/src/main/java/com/<name>/plantapp/
+app/src/main/java/com/practice/plant_user/
   ├── ui/          Compose screens and layout components
-  ├── data/        Room database, entities (GrowZone.kt, PlacedItem.kt, Area.kt, etc.)
-  ├── viewmodel/   State-holding classes between UI and data
+  ├── data/        (phase 2)Room database, entities (GrowZone.kt, PlacedItem.kt, Area.kt, etc.)
+  ├── viewmodel/   (phase 2)State-holding classes between UI and data
   └── MainActivity.kt
 app/src/main/res/  Icons, strings, colors
+Docs/              General docs for project
 ```
 
 ## Build/Run Commands
-[To fill in once the project is scaffolded, e.g. `./plant_user build`,
-`./plant_user installDebug`, emulator launch command]
+- Build: `./gradlew build`
+- Install debug build to connected device/emulator: `./gradlew installDebug`
+- Run unit tests: `./gradlew test`
+- Run instrumented tests (needs emulator/device running): `./gradlew connectedAndroidTest`
+- Launch from Android Studio: Run ▶ button, or Shift+F10
 
 ## Git Workflow
 See git_workflow.md, commit-msg hook enforces `feat:`/`fix:`/`refactor:`/
