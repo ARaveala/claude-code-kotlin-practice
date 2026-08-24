@@ -1,6 +1,8 @@
 # Private
 .env
 local.properties
+Docs/kotlin_notes.md
+Docs/android_compose_notes.md
 
 # Build artifacts
 .gradle/
