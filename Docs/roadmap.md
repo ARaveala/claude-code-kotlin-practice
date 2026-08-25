@@ -1,7 +1,7 @@
 # Roadmap
 
 Rule for Claude Code: only build what's in the **current phase**. Do not
-implement later- hase features early, even if they seem simple, unless
+implement later phase features early, even if they seem simple, unless
 explicitly asked. See domain_model.md for entity/rule definitions this
 roadmap refers to.
 
