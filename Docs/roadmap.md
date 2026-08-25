@@ -1,7 +1,7 @@
 # Roadmap
 
 Rule for Claude Code: only build what's in the **current phase**. Do not
-implement later-phase features early, even if they seem simple, unless
+implement later phase features early, even if they seem simple, unless
 explicitly asked. See domain_model.md for entity/rule definitions this
 roadmap refers to.
 
@@ -12,7 +12,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   No login/username. App opens straight to the Area list. Can be added
   later without touching the domain model below it.
 
-- [ ] **Phase 1 — Area list + blank canvas**
+- [x] **Phase 1 — Area list + blank canvas**
   List screen: add Area, tap to open. Area opens to an empty, pannable,
   zoomable canvas (draw.io-style blank space).
 
@@ -49,7 +49,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   event/reminder. Multi-person sync + notification batching (avoiding
   per-plant spam) is a v2+ problem.
 
-## Explicitly out of scope for week one
+## Explicitly out of scope for phases
 - Multi-user login/auth
 - Multi-person calendar notification logic
 - Non-rect GrowZone shapes
