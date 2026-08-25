@@ -83,6 +83,12 @@ Docs/              General docs for project (see Reference Files below)
 ```
 
 ## Build/Run Commands
+- Lint is strict (`app/build.gradle.kts`): `warningsAsErrors = true`,
+  `abortOnError = true` — a lint warning fails the build, not just errors.
+- Dependency versions are pinned in `gradle/libs.versions.toml` and get
+  bumped independently of chat sessions — check that file for current
+  versions before adding a new dependency (e.g. Room in Phase 2), don't
+  assume a version from training data.
 - Build: `./gradlew build`
 - Install debug build to connected device/emulator: `./gradlew installDebug`
 - Run unit tests: `./gradlew test`
