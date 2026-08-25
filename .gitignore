@@ -3,6 +3,7 @@
 local.properties
 Docs/kotlin_notes.md
 Docs/android_compose_notes.md
+Docs/claude_proggression notes.md
 
 # Build artifacts
 .gradle/
@@ -12,3 +13,4 @@ build/
 
 # IDE workspace state
 .idea
+.serena/
