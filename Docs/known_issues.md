@@ -60,4 +60,14 @@ bugs, nothing needs fixing now.
 # From practice to release
 
 - **Release optimization off during early phases**
-  app/build.gradle.kts build types, R8/ProGuard disabled.
+  app/build.gradle.kts build types, R8/ProGuard disabled, consider enable later.
+
+
+# Linter + andoird studio remarks
+
+- **Duplicate dependencies**
+  - app/build.gradle.kts
+    Dependency 'platform(libs.androidx.compose.bom)' is declared multiple times.
+    False positive, seperate class paths.
+  - unused resources, colours, acceptable for experimenting
+
