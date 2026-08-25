@@ -9,7 +9,7 @@ class CoerceAreaNameInputTest {
 
     @Test
     fun `input longer than the limit is rejected, keeping the previous value`() {
-        val current = "Backyar"
+        val current = "Backyard"
         val candidate = current + "dd" // 9 chars, over an 8 char limit
 
         val result = coerceAreaNameInput(current, candidate, maxLength = 8)
