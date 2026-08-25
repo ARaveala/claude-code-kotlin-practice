@@ -18,7 +18,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    lint {
+        warningsAsErrors = true
+        abortOnError = true
+        checkReleaseBuilds = true
+        informational += "UnusedResources"
+    }
     buildTypes {
         release {
             optimization {
