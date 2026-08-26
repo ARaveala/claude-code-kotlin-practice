@@ -5,14 +5,14 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class CoerceAreaNameInputTest {
+class CoerceNameInputTest {
 
     @Test
     fun `input longer than the limit is rejected, keeping the previous value`() {
         val current = "Backyard"
         val candidate = current + "dd" // 9 chars, over an 8 char limit
 
-        val result = coerceAreaNameInput(current, candidate, maxLength = 8)
+        val result = coerceNameInput(current, candidate, maxLength = 8)
 
         assertEquals(current, result)
     }
@@ -22,7 +22,7 @@ class CoerceAreaNameInputTest {
         // Boundary check: off by one errors in "<=" vs "<" show up exactly here.
         val candidate = "12345678" // exactly 8 chars
 
-        val result = coerceAreaNameInput(current = "", candidate = candidate, maxLength = 8)
+        val result = coerceNameInput(current = "", candidate = candidate, maxLength = 8)
 
         assertEquals(candidate, result)
     }
@@ -31,7 +31,7 @@ class CoerceAreaNameInputTest {
     fun `input under the limit is accepted unchanged`() {
         val candidate = "Greenhouse"
 
-        val result = coerceAreaNameInput(current = "", candidate = candidate, maxLength = 50)
+        val result = coerceNameInput(current = "", candidate = candidate, maxLength = 50)
 
         assertEquals(candidate, result)
     }
