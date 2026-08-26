@@ -21,9 +21,20 @@
 - Manually tested the built app on a Pixel 8 emulator (list + canvas), confirming the flow end to end myself. Open item: all sizing/grid values were only verified against this one device's density (420dpi/xxhdpi) — needs testing on other emulator profiles (tablet, lower-density/older phone) before trusting the dp-based scaling generalizes.
 - Caught the emulator's "try your stylus" popup interfering with dialog taps during my own manual testing; Claude confirmed via logcat it was a simulator only input artifact (not an app bug) and logged it in `known_issues.md`.
 
+**phase 2 - GrowZone creation + nesting validation**
+- Planned a schema plan for Room (@Entity definitions for GrowZone and its nesting fields), created persistent state (emulator only for now), logged in known_issues: real device must pass persistence beyond dev testing. 
+- Chose destructive migration (fallbackToDestructiveMigration) for now (this needs to be revisited when providing for users)
+- Noted that having claude write code burns a lot of tokens, with a suprising amount of calls library/api rather than logic itself. Next to asses how intuitive the generated code is to hand tweak, since that's the real cost/benefit question, not raw token spend.
+- Simplified the nesting validation logic after realizing the original version was solving for cases with no evidence they'd occur yet. Some remaining aspects of the nesting rules will need real usage data before they can be pinned down further, not guessing ahead of that.
+- Researched how comparable apps handle canvas/placement interaction and pulled out failure patterns to design around rather than discover later: pan/zoom gestures getting hijacked by movable objects (accidental drags mid zoom), rigid box only shapes with no freeform option, and generally overcomplicated placement UIs. These are now design watch items for Phase 5 rendering/interaction work, not Phase 2 scope creep. 
+
+
 TO DO: 
-- add stricter compile flags 
 - fix linter issues, this will also help understanding kotlin
 - update project files for private notes
 - create a make test first mentality for claude code, to ensure clean error reports
-- Manually go through checklist again more strict this time
+- provide a plan for a list system
+- provide plan for generic items such as pots and holes, so u can choose from a list, 
+rather then recreate new everytime. 
+- find a few devices to start testing on
+- complete phase1's private study c++ comp snippets. 

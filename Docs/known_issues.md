@@ -53,16 +53,16 @@ bugs, nothing needs fixing now.
   If Area names or type names are the same, this may affect user experince and
   any search features we may add. Decide on naming convention rules.
 
-- **Android's Auto Backup for Apps may back up the Room database to the
-  user's Google account by default on a real device** (emulator testing
+- **Android's Auto Backup for Apps may back up the Room database to the user's Google account by default on a real device**
+  (emulator testing
   doesn't reliably exercise this path). Not a concern with placeholder
   data, but once real garden/plant data exists this is a privacy/design
   decision to make deliberately (`android:allowBackup` / backup rules),
   not something to silently inherit from the default.
   — Phase 4+
 
-- **How a future "list what's inside this zone" feature should work is
-  undecided.** Now that visual overlap doesn't require formal nesting
+- **How a future "list what's inside this zone" feature should work is undecided.**
+  Now that visual overlap doesn't require formal nesting
   (see domain_model.md's Wall Collision, a Box can visually sit on a
   plot via `bounds_enforced = false` without being its child), a listing
   built purely off `parent_grow_zone_id` would miss zones/items that
@@ -73,8 +73,8 @@ bugs, nothing needs fixing now.
   alone answers "what's in this zone" once that's designed.
   — Phase 4+
 
-- **`GardenDatabase` uses the OS-backed `AndroidSQLiteDriver`, not
-  `BundledSQLiteDriver`** (chosen in Phase 2 for a smaller APK). This
+- **`GardenDatabase` uses the OS-backed `AndroidSQLiteDriver`, not `BundledSQLiteDriver`**
+  (chosen in Phase 2 for a smaller APK). This
   means the actual SQLite engine version is whatever ships with each
   device's Android build, not one we control — Room targets a
   conservative common feature set so this is low risk, but it's the one
