@@ -24,7 +24,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
 
-- [ ] **Phase 3 — GrowZone completeness (resize, move, containment)**
+- [ ] **Phase 3 — GrowZone completeness baisic (resize, move, containment)**
   Finger drag resize and manual measurement entry, both producing the
   same scale to cm result. Determine real sizing caps here via testing
   (see domain_model.md — Sizing Caps). Also pulled forward from the old
@@ -33,6 +33,10 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   placeholder auto layout only, per known_issues.md). Exit criterion: a
   GrowZone can be created, resized, moved, and nested with real
   containment — no PlacedItem work starts until this is solid.
+
+- [ ] **Phase 3.5 — Addition of custome GrowZone**
+	Custom GrowZone follows the same rules as non custom, except
+	user now gets to define name and colour for the zone. When user is prompted for GrowZone, user gets to choose custom. This custom option is then added to the interface. This will require a drop down menu for these options, simplest option is to create a drop down from the start , this piece of code has reusability.
 
 - [ ] **Phase 4 — PlacedItem (pot/hole) creation + detail card**
   Color-swatch placeholder (left), fields (right): label, plant name,
@@ -44,7 +48,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
 - [ ] **Phase 4.5 — Images (stretch, not core)**
   Image picker for GrowZone types and PlacedItems, replacing color
   swatches. Only start once Phase 4 works, treat as optional bonus
-  scope, not something to fold into Phase 4.
+  scope, not something to fold into Phase 4. This is dependant on how th user interface feels this stage . 
 
 - [ ] **Phase 5 — Rendering polish**
   Level of detail / dot mode rendering at extreme zoom out, for both
@@ -69,3 +73,10 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
 - Non-rect GrowZone shapes
 - Plant-specific seasonal planting suggestions (the "tomato needs
   planting within these months" idea), future concept, not yet designed
+
+# Phase ? Non-rect GrowZone shapes + pots and holes
+- GrowZones have generic shapes that during resizing can be manipulated into unique shapes. custom shape creation provides an easy way to create 1 shape using many, some desired shapes may be non regular but also then difficult to draw on phone. 
+? can we use square grid to aid here 
+? how may a user want to draw for example a path that may not contain any plants , this makes things easier visually when navigating land. 
+? is it better to use an image from map here? map image may not be good enough quality. 
+? considering custom objects 
