@@ -113,11 +113,14 @@ private fun growZoneColor(type: GrowZoneType): Color = when (type) {
 @Composable
 fun AreaCanvasScreen(area: Area, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val growZoneViewModel: GrowZoneViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id) }
-        },
-    )
+    val growZoneViewModel: GrowZoneViewModel = viewModel(key = "growZones-${area.id}") {
+        GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id)
+    }
+    //val growZoneViewModel: GrowZoneViewModel = viewModel(
+    //    factory = viewModelFactory {
+    //        initializer { GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id) }
+    //    },
+ //   )
     val growZones by growZoneViewModel.growZones.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var focusedZoneId by remember { mutableStateOf<Long?>(null) }

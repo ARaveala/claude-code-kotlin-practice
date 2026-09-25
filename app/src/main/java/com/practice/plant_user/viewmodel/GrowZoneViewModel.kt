@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
+import android.util.Log
 private const val GROW_ZONE_GAP_CM = 50.0
 private const val NESTED_ZONE_PADDING_CM = 20.0
 
@@ -67,6 +67,10 @@ fun canNestGrowZone(parent: GrowZone?, allZones: List<GrowZone>): Boolean =
     nestingRejectionReason(parent, allZones) == null
 
 class GrowZoneViewModel(private val growZoneDao: GrowZoneDao, private val areaId: Long) : ViewModel() {
+
+    init {
+        Log.d("DEBUG::GrowZoneViewModel", "GrowZoneViewModel being created for areaId=$areaId")
+    }
     val growZones: StateFlow<List<GrowZone>> = growZoneDao.getByArea(areaId)
         .map { entities ->
             entities.map {
