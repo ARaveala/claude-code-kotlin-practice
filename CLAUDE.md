@@ -6,11 +6,17 @@ entity/nesting rules and roadmap.md for current build phase, **only
 build what's in the current phase unless explicitly asked otherwise.**
 
 ## Current Status
-Phase 1 (Area list + blank pannable/zoomable canvas) is complete —
-see `Docs/progression_log.md` for what was built and learned. **Phase 2
-(GrowZone creation + nesting validation) is next.** Phase 2 is the first
-phase that touches `data/` (Room) and `viewmodel/` — per Safety Rules
-below, propose the Room schema before writing it.
+Phase 2 (GrowZone creation + nesting validation) is complete — see
+`Docs/progression_log.md`. **Phase 3 (GrowZone completeness — resize,
+move, containment) is in progress, currently on Phase 3a.** Phase 3 is
+split into sub-phases for testability; see `Docs/phases/phase3/` for
+the full breakdown and exit criteria, `roadmap.md` for the summary.
+
+Phase 3a scope: manual measurement entry (no gestures yet), determining
+real sizing caps via boundary tested limits, with safety and UX in mind.
+Drag resize (3b), drag move (3c), and collision enforcement + the
+`bounds_enforced` toggle (3d) are scoped but not started.
+
 
 ## Safety Rules
 - Never auto-commit. Always show the diff and let me review before committing.
@@ -47,11 +53,6 @@ When explaining code or suggesting patterns, always note:
   data, any user-entered measurement).
 - Prefer stack/primitive over heap where possible; flag allocations per the
   runtime notes above.
-- Error messages (dev builds): must state what failed, where (file/function),
-  and enough surrounding context to debug fast, not a generic exception message.
-- Logging: use Android's `Log` class (`Log.d`/`Log.e` etc.), not `println`,
-  filterable by tag, strippable from release builds. Use one tagged logger
-  convention per file (tag = class/file name), consistently.
 - Before reaching for "extract a function + write a unit test," consider
   whether a simpler check proves correctness just as well (a one-off
   script, a manual verification) — don't restructure code purely to make
@@ -64,6 +65,23 @@ When explaining code or suggesting patterns, always note:
   surrounding code harder to follow, that's a readability tradeoff to
   flag and ask about, not decide silently — see `ui/CanvasTransform.kt`
   for a case judged worth it (Phase 1's pan/zoom math).
+
+## Error/Validation Messages & Debug Logging
+- Error/validation messages (dev builds): named, centralized constants
+  (e.g. `ValidationMessages.kt`) — one per validation rejection case
+  (`SIZING_CAP_EXCEEDED`, `NESTING_DEPTH_EXCEEDED`, `COLLISION_DETECTED`,
+  etc.), referenced everywhere rather than ad hoc strings at each call
+  site. Each message must state what failed, where (file/function), and
+  enough surrounding context to debug fast — not a generic exception
+  message. New validation cases get a named constant here as a standing
+  rule, not a one-phase task.
+- Logging: Android's `Log` class (`Log.d`/`Log.e`), not `println` —
+  filterable by tag, strippable from release builds. One tagged logger
+  convention per file (tag = class/file name), consistently. Added incrementally as each new
+  function is built, not deferred to real-device testing — Phase 1's
+  `CanvasTransform.kt` logging is what made the emulator-touch anomaly
+  diagnosable in the first place, and instrumentation needs to already
+  be trustworthy before device-specific bugs show up on top of it.
 
 ## Project Structure
 ```
