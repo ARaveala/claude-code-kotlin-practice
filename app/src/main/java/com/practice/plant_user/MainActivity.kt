@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import android.util.Log
 import com.practice.plant_user.data.GardenDatabase
 import com.practice.plant_user.ui.Area
 import com.practice.plant_user.ui.AreaCanvasScreen
@@ -23,7 +24,13 @@ import com.practice.plant_user.ui.theme.Plant_userTheme
 import com.practice.plant_user.viewmodel.AreaViewModel
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        // DEBUGGING
+        private const val TAG = "MainActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.v(TAG, "onCreate: --- entering", Throwable())
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
