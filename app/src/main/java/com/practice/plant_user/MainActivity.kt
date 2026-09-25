@@ -20,6 +20,7 @@ import com.practice.plant_user.data.GardenDatabase
 import com.practice.plant_user.ui.Area
 import com.practice.plant_user.ui.AreaCanvasScreen
 import com.practice.plant_user.ui.AreaListScreen
+import com.practice.plant_user.ui.PlantUserApp
 import com.practice.plant_user.ui.theme.Plant_userTheme
 import com.practice.plant_user.viewmodel.AreaViewModel
 
@@ -33,32 +34,11 @@ class MainActivity : ComponentActivity() {
         Log.v(TAG, "onCreate: --- entering", Throwable())
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val areaDao = GardenDatabase.getInstance(applicationContext).areaDao()
+
         setContent {
             Plant_userTheme {
-                val context = LocalContext.current
-                val areaViewModel: AreaViewModel = viewModel(
-                    factory = viewModelFactory {
-                        initializer { AreaViewModel(GardenDatabase.getInstance(context).areaDao()) }
-                    },
-                )
-                val areas by areaViewModel.areas.collectAsState()
-                var selectedArea by remember { mutableStateOf<Area?>(null) }
-
-                val area = selectedArea
-                if (area == null) {
-                    AreaListScreen(
-                        areas = areas,
-                        onAddArea = { name -> areaViewModel.addArea(name) },
-                        onAreaClick = { clicked -> selectedArea = clicked },
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    AreaCanvasScreen(
-                        area = area,
-                        onBack = { selectedArea = null },
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                PlantUserApp(areaDao)
             }
         }
     }
