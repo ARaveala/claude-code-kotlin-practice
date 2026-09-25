@@ -2,8 +2,7 @@
 
 Build/tooling gotchas, as they come up.
 
-- **Android Studio emulator synthetic multi touch / stylus popup tool seems to 
-  be able to inject spurious touch events.** Observed while testing
+- **Android Studio emulator synthetic multi touch / stylus popup tool seems to  be able to inject spurious touch events.** Observed while testing
   `AreaCanvasScreen`'s pinch to zoom (Phase 1): a swipe occasionally
   produced a jittery/phantom pointer zoom jump, and the emulator's "try
   your stylus" popup interfered with dialog taps. Confirmed via logcat
@@ -12,26 +11,30 @@ Build/tooling gotchas, as they come up.
   single finger pans, the anomaly is emulator input simulation, not
   app code. Not yet tested on a real device
 
+- **Phone rotate whilst in area causes kick back to list of areas**
+Potentially, remember { mutableStateOf<Area?>(null) } uses remember, not rememberSaveable.
+MainActivity.kt , onCreate. 
+
+
 # Potential Concerns
 
 Design/architecture points worth remembering for future phases, not
 bugs, nothing needs fixing now.
 
-- **All app state currently lives in `MainActivity`'s `onCreate`
-  composition**, with a raw `if/else` screen router
+- **All app state currently lives in `MainActivity`'s `onCreate` composition** , with a raw `if/else` screen router
   (`MainActivity.kt`). Expect this to move into the planned
   `viewmodel/` layer as more screens are added.
   — Phase 2+
 
-- **Grid spacing (`GRID_SPACING` in `AreaCanvasScreen.kt`) has no
-  real world cm anchor yet.** Phase 3's scale to cm resize work will
+- **Grid spacing (`GRID_SPACING` in `AreaCanvasScreen.kt`) has no real world cm anchor yet.** 
+  Phase 3's scale to cm resize work will
   need to define one; the grid should likely switch to being cm based
   at that point so it functions as an actual ruler, not just a zoom
   indicator.
   — Phase 3
 
-- **Canvas pan/zoom (`CanvasTransform`) resets on navigating away and
-  back.** Currently unavoidable, it's local `remember` state. Worth
+- **Canvas pan/zoom (`CanvasTransform`) resets on navigating away and back.**
+  Currently unavoidable, it's local `remember` state. Worth
   deciding later on whether it should persist per Area or always fresh 
   start from the same location.
   — Phase 5
