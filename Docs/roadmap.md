@@ -24,7 +24,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
 
-- [ ] **Phase 3 — GrowZone completeness baisic (resize, move, containment)**
+- [ ] **Phase 3 — GrowZone completeness basic (resize, move, containment)**
   Finger drag resize and manual measurement entry, both producing the
   same scale to cm result. Determine real sizing caps here via testing
   (see domain_model.md — Sizing Caps). Also pulled forward from the old
@@ -34,7 +34,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   GrowZone can be created, resized, moved, and nested with real
   containment — no PlacedItem work starts until this is solid.
 
-- [ ] **Phase 3.5 — Addition of custome GrowZone**
+- [ ] **Phase 3.5 — Addition of custom GrowZone**
 	Custom GrowZone follows the same rules as non custom, except
 	user now gets to define name and colour for the zone. When user is prompted for GrowZone, user gets to choose custom. This custom option is then added to the interface. This will require a drop down menu for these options, simplest option is to create a drop down from the start , this piece of code has reusability.
 
