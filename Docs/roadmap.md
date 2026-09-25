@@ -23,7 +23,29 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   flat nesting depth cap, tested explicitly at each boundary. Tap to zoom
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
+- [ ] **Phase 2.5 — Switch to Navigation 3**
+  Replace the hand-rolled `if/else` router in `MainActivity` with Nav3.
+  Motivation: all screens shared one Activity-scoped ViewModelStore, which
+  caused the Area/GrowZone mix up bug (patched short term with a per Area
+  `viewModel` key). Nav3 gives per screen ViewModel scoping and cleanup, a
+  saveable back stack, and tools later phases will likely want (scenes,
+  results, deep links). Implemented by hand, not via Claude Code, to learn
+  the library and surface state/lifecycle issues I haven't found yet.
 
+  Scope:
+  - Keys: `AreaList`, `Canvas(areaId)`, IDs only, no objects in keys.
+  - Decide before starting: canvas loads its Area by ID (`AreaDao.getById`)
+    vs. looking it up in `AreaViewModel`'s list.
+  - Saveable back stack (rotation keeps the current screen).
+  - Per entry ViewModel scoping; remove the `key` workaround.
+  - Out of scope: scenes/two pane, deep links, custom animations,
+    zone focus as back stack entries.
+
+  Exit criterion: Areas show only their own zones across repeated
+  navigation; rotation keeps the current screen; new zones get the correct
+  `areaId` (Database Inspector); heap dump after several visits shows no
+  leftover `GrowZoneViewModel` instances.
+  
 - [ ] **Phase 3 — GrowZone completeness basic (resize, move, containment)**
   Finger drag resize and manual measurement entry, both producing the
   same scale to cm result. Determine real sizing caps here via testing

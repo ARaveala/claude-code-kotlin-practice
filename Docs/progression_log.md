@@ -28,13 +28,21 @@
 - Simplified the nesting validation logic after realizing the original version was solving for cases with no evidence they'd occur yet. Some remaining aspects of the nesting rules will need real usage data before they can be pinned down further, not guessing ahead of that.
 - Researched how comparable apps handle canvas/placement interaction and pulled out failure patterns to design around rather than discover later: pan/zoom gestures getting hijacked by movable objects (accidental drags mid zoom), rigid box only shapes with no freeform option, and generally overcomplicated placement UIs. These are now design watch items for Phase 5 rendering/interaction work, not Phase 2 scope creep. 
 
+**BUG HUNT**
+All Areas showed the same GrowZones. Looked inconsistent (sometimes all zones, sometimes none) seems because whichever Area was entered first after process start "won."
+Used Android Studio's Database Inspector: Area IDs were distinct, and zone rows had areaIds but mostly the wrong one (1). GrowZoneDao's query was correct, so the problem wasn't in the SQL.
+Logging in GrowZoneViewModel's init showed it was constructed only once per process. The cause was viewModel() with no key: the Activity wide store hands back the cached instance, and the factory never runs for later Areas.
+Fixed with a per Area key. Learned: onCreate runs once, and navigation is recomposition; stack traces via Throwable(); viewModel overloads; lambdas with receiver.
+Did some research and some issues would be resolved by using Nav3 not to mention it may provide a faster passage to certain future features not yet documented. Worth the bloat?
 
 TO DO: 
-- fix linter issues, this will also help understanding kotlin
-- update project files for private notes
+
 - create a make test first mentality for claude code, to ensure clean error reports
 - provide a plan for a list system
 - provide plan for generic items such as pots and holes, so u can choose from a list, 
 rather then recreate new everytime. 
 - find a few devices to start testing on
+- add change area name
+- add delete area 
+- add delete growzone
 - complete phase1's private study c++ comp snippets. 
