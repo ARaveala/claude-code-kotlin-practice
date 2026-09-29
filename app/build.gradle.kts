@@ -41,6 +41,17 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("pixel8Api35") {
+                    device = "Pixel 8"
+                    apiLevel = 35
+                    systemImageSource = "aosp-atd"   // stripped-down image made for tests: boots faster
+                }
+            }
+        }
+    }
 }
 
 dependencies {
