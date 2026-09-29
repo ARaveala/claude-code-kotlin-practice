@@ -146,7 +146,7 @@ fun AreaCanvasScreen(area: Area, onBack: () -> Unit, modifier: Modifier = Modifi
         }
     }
 
-    // System/hardware back zooms out one nesting level before it leaves the Area, matching the
+    // (on swipe left) System/hardware back zooms out one nesting level before it leaves the Area, matching the
     // small on-canvas back arrow — otherwise the two "back" affordances would disagree.
     BackHandler {
         if (focusedZoneId != null) zoomOutOneLevel() else onBack()
