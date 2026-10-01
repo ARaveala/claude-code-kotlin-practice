@@ -86,16 +86,27 @@ When explaining code or suggesting patterns, always note:
 ## Project Structure
 ```
 app/src/main/java/com/practice/plant_user/
-  ├── ui/          Compose screens and layout components
-  │                 AreaListScreen.kt   — Area list, add dialog, name/count caps (Phase 1)
-  │                 AreaCanvasScreen.kt — pannable/zoomable canvas + grid (Phase 1)
-  │                 CanvasTransform.kt  — pure pan/zoom + grid math, unit-tested (Phase 1)
-  ├── data/        (phase 2, not started) Room database, entities (GrowZone.kt, PlacedItem.kt, Area.kt, etc.)
-  ├── viewmodel/   (phase 2, not started) State-holding classes between UI and data
-  └── MainActivity.kt — entry point, currently owns all app state directly (expected
-                         to move into viewmodel/ as more screens are added — see
-                         Potential Concerns in known_issues.md)
-app/src/test/java/com/practice/plant_user/ui/  — unit tests for the ui/ pure functions above
+  ├── MainActivity.kt   — Android entry point only: edge-to-edge, theme, builds the
+  │                       DAO(s) from applicationContext and passes them to PlantUserApp.
+  │                       Keep it thin; platform setup lives here, app logic doesn't.
+  ├── ui/
+  │    PlantUserApp.kt      — root composable: AreaViewModel, Nav3 back stack + NavDisplay
+  │    AreaListScreen.kt    — Area list, add dialog, name/count caps (Phase 1)
+  │    AreaCanvasScreen.kt  — pannable/zoomable canvas + grid, GrowZone rendering,
+  │                           tap-to-zoom, add-GrowZone dialog (Phase 1–2)
+  │    CanvasTransform.kt   — pure pan/zoom + grid math, unit-tested (Phase 1)
+  │    navigation/
+  │      Destinations.kt    — Nav3 screen keys (@Serializable NavKey) + navConfig.
+  │                           Every key MUST be registered in navConfig or state
+  │                           saving crashes at runtime.
+  │    theme/               — Material theme (template; dynamic colour on Android 12+)
+  ├── data/        Room 3: GardenDatabase, entities (Area, GrowZone), DAOs (AreaDao,
+  │                GrowZoneDao). Uses AndroidSQLiteDriver (see known_issues).
+  └── viewmodel/   AreaViewModel, GrowZoneViewModel: state between UI and data
+app/src/test/java/com/practice/plant_user/         — JVM unit tests (no emulator):
+                                                     ui/ pure functions, viewmodel/
+app/src/androidTest/java/com/practice/plant_user/  — instrumented tests (emulator):
+                                                     state restore across rotation
 app/src/main/res/  Icons, strings, colors
 Docs/              General docs for project (see Reference Files below)
 ```
@@ -108,9 +119,16 @@ Docs/              General docs for project (see Reference Files below)
   versions before adding a new dependency (e.g. Room in Phase 2), don't
   assume a version from training data.
 - Build: `./gradlew build`
-- Install debug build to connected device/emulator: `./gradlew installDebug`
-- Run unit tests: `./gradlew test`
-- Run instrumented tests (needs emulator/device running): `./gradlew connectedAndroidTest`
+- Run instrumented tests on the managed device (headless, boots its own emulator;
+  the check that must pass before commit/PR): `./gradlew pixel8DebugAndroidTest`
+- Run instrumented tests on a running emulator (faster while writing a test):
+  `./gradlew connectedAndroidTest`. WARNING: uninstalls the app afterwards, wiping
+  that emulator's data. Use a dedicated test AVD, not the dev one.
+- Run a single test class:
+  `./gradlew pixel8DebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.practice.plant_user.PlantUserAppNavigationTest`
+  (append `#methodName` for one test)
+- Test reports: `find app/build/reports -name index.html`; per-test logcat:
+  `app/build/outputs/androidTest-results/`
 - Launch from Android Studio: Run ▶ button, or Shift+F10
 
 ## Git Workflow
