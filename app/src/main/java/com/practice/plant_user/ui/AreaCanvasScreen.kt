@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,13 +117,9 @@ fun AreaCanvasScreen(area: Area, onBack: () -> Unit, modifier: Modifier = Modifi
     val growZoneViewModel: GrowZoneViewModel = viewModel(key = "growZones-${area.id}") {
         GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id)
     }
-    //val growZoneViewModel: GrowZoneViewModel = viewModel(
-    //    factory = viewModelFactory {
-    //        initializer { GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id) }
-    //    },
- //   )
+
     val growZones by growZoneViewModel.growZones.collectAsState()
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var focusedZoneId by remember { mutableStateOf<Long?>(null) }
     var transform by remember { mutableStateOf(DEFAULT_TRANSFORM) }
     var canvasSizePx by remember { mutableStateOf(Size.Zero) }
@@ -292,7 +289,7 @@ private fun AddGrowZoneDialog(
     onConfirm: (name: String, type: GrowZoneType, widthCm: Double, depthCm: Double, heightCm: Double?) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
     var type by remember { mutableStateOf(GrowZoneType.GREENHOUSE) }
     var widthText by remember { mutableStateOf("100") }
     var depthText by remember { mutableStateOf("100") }
