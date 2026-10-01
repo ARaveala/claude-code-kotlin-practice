@@ -15,16 +15,21 @@ Build/tooling gotchas, as they come up.
 Potentially, remember { mutableStateOf<Area?>(null) } uses remember, not rememberSaveable.
 MainActivity.kt , onCreate. 
 
+- **`connectedAndroidTest` uninstalls the app afterwards**, wiping the target emulator's
+  data. Use the managed device, or a dedicated test AVD.
+- **`sun.misc.Unsafe` warnings during Gradle runs** come from protobuf inside the build
+  tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
+  updates protobuf.
 
 # Potential Concerns
 
 Design/architecture points worth remembering for future phases, not
 bugs, nothing needs fixing now.
 
-- **All app state currently lives in `MainActivity`'s `onCreate` composition** , with a raw `if/else` screen router
-  (`MainActivity.kt`). Expect this to move into the planned
-  `viewmodel/` layer as more screens are added.
-  — Phase 2+
+- **App assembly lives in the root package (MainActivity + PlantUserApp).** The if/else
+  router is gone (Nav3). As more DAOs/ViewModels appear, consider a small AppContainer
+  created once in an Application subclass instead of building dependencies inline.
+  — when a third DAO arrives
 
 - **Grid spacing (`GRID_SPACING` in `AreaCanvasScreen.kt`) has no real world cm anchor yet.** 
   Phase 3's scale to cm resize work will
@@ -92,7 +97,7 @@ bugs, nothing needs fixing now.
   GrowZoneViewModel (`android.util.Log`: needs a logger wrapper),
   AreaCanvasScreen (`LocalContext` to build its ViewModel; removed in Step D).
   Habit: keep `android.*` and `Context` out of shared logic, and pass platform
-  objects in from MainActivity.
+  objects in from MainActivity. Model/ is already plain Kotlin.
 
 - **`GrowZoneViewModel` instances accumulate for the Activity's lifetime.**
   `AreaCanvasScreen` creates them with `viewModel(key = "growZones-${area.id}")`,
@@ -102,7 +107,25 @@ bugs, nothing needs fixing now.
   visited. Bounded by the 100 area cap, so not urgent. Fix: Nav3 per-entry
   ViewModel decorator (`lifecycle-viewmodel-navigation3`) + hoist construction
   out of the screen.
-  — Phase3 step D
+- NOW
+
+- **Zone focus is lost on rotation.** `focusedZoneId` and `transform` are plain
+  `remember`. They must be saved together or the UI shows "inside a zone" at default
+  zoom. Likely approach: save `focusedZoneId`, recompute the zoom with `fitTransform`
+  once the canvas is measured (doesn't decide the Phase 5 "persist pan/zoom" question).
+  Need to scope viewmodels to each entry, so a test can pass in fake zones.
+
+
+- **`StateRestorationTester` is an emulation of rotation.** It rebuilds the composition
+  in the same Activity. Dialog windows can linger briefly and give a false pass. The
+  exact equivalent is `ActivityScenario.recreate()`, which needs an injectable database
+  to stay isolated.
+
+
+- **Process-death gap on the canvas.** Urgent once Area deletion comes to play. 
+  After process death the back stack restores immediately but `areas` starts empty until Room emits, so the canvas entry briefly renders nothing. Decide: placeholder vs pop back if the Area no longer exists (loading, loaded).
+  Reproduce it with: open a canvas, press Home, run adb shell am kill com.practice.plant_user, then reopen the app from recents.
+
 
 # From practice to release
 
@@ -117,4 +140,5 @@ bugs, nothing needs fixing now.
     Dependency 'platform(libs.androidx.compose.bom)' is declared multiple times.
     False positive, seperate class paths.
   - unused resources, colours, acceptable for experimenting
+  - "Newer version available" checks set to informational (see decisions.md).
 

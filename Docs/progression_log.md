@@ -56,6 +56,19 @@ Did some research and some issues would be resolved by using Nav3 not to mention
   known_issues).
 - Found that keyed ViewModels (`GrowZoneViewModel` per area) are never cleared from the
   Activity's store, (Fix planned, logged in known_issues).
+  **Layering + model package** Due to already going through code to migrate and trying to understand it...
+- Found a ui ⇄ viewmodel dependency cycle: domain classes (Area, GrowZone) lived in ui/,
+  and GrowZoneType + displayName in data/. Kotlin doesn't flag package cycles, and
+  same-package code needs no imports, so it was invisible in import lists.
+- Created model/ (plain Kotlin) for Area, GrowZone, GrowZoneType, PositionCm and the
+  nesting/layout rules; moved displayName to ui. Rule for moves: only when a concrete
+  second user already exists (here: dialog + ViewModel both use the rules).
+- Added a Konsist ArchitectureTest so layer rules run in every `./gradlew build`.
+- Found a precision bug: nested positions went Double → Float → Double through Compose's
+  Offset (353.3 became 353.29998…). Test-first fix: positions stay Double, Float only at
+  draw time. Learned Kotlin has no implicit numeric conversions (20f won't pass as Double).
+- Made version-update lint checks informational after a Gradle release broke the build
+  with no code change.
 
 **Testing**
 - Adopted test first for bugs: find the issue, write a test that proves it, then fix.
@@ -88,3 +101,6 @@ rather then recreate new every time.
 - Unit test: every nav key registered in navConfig
 - Second managed device at minSdk for older phone testing
 - Add decisions doc, clarifying simply decisions made , with why, cost and revisit.
+- **Area name cap (50 chars) is enforced only in the UI text field.** Move the rule to
+  model/ and check it in the ViewModel too, so future paths (import, sync) can't bypass it.
+

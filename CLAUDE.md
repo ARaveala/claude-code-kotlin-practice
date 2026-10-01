@@ -65,6 +65,16 @@ When explaining code or suggesting patterns, always note:
   surrounding code harder to follow, that's a readability tradeoff to
   flag and ask about, not decide silently — see `ui/CanvasTransform.kt`
   for a case judged worth it (Phase 1's pan/zoom math).
+  - Layers: ui → viewmodel → data → model; dependencies only point downward. `model/` is
+  plain Kotlin. Root package (MainActivity, PlantUserApp) may use everything. Enforced
+  by `ArchitectureTest` in `./gradlew test`.
+- Measurements stay `Double` (cm) in model/data/viewmodel. Convert to `Float` only at
+  the drawing step in ui (Compose draws in Float px). Never round-trip through Float
+  mid-calculation (e.g. Compose `Offset`) — see decisions.md.
+- Bugs are fixed test-first: write a test that fails for the intended reason, then fix, user(me) must check
+failed test output first for clarity.
+- UI state the user deliberately created (open dialogs, typed text) uses
+  `rememberSaveable`; measured/derived values (e.g. canvas size) stay `remember`.
 
 ## Error/Validation Messages & Debug Logging
 - Error/validation messages (dev builds): named, centralized constants
@@ -100,9 +110,10 @@ app/src/main/java/com/practice/plant_user/
   │                           Every key MUST be registered in navConfig or state
   │                           saving crashes at runtime.
   │    theme/               — Material theme (template; dynamic colour on Android 12+)
-  ├── data/        Room 3: GardenDatabase, entities (Area, GrowZone), DAOs (AreaDao,
-  │                GrowZoneDao). Uses AndroidSQLiteDriver (see known_issues).
-  └── viewmodel/   AreaViewModel, GrowZoneViewModel: state between UI and data
+  ├── viewmodel/     AreaViewModel, GrowZoneViewModel. Depends on model + data.
+  ├── data/          Room 3: GardenDatabase, entities, DAOs. Depends on model.
+  └── model/         Plain Kotlin, no Android/Compose/Room. Area, GrowZone, GrowZoneType,
+                     PositionCm, GrowZoneRules.kt (nesting + layout rules). Depends on nothing.
 app/src/test/java/com/practice/plant_user/         — JVM unit tests (no emulator):
                                                      ui/ pure functions, viewmodel/
 app/src/androidTest/java/com/practice/plant_user/  — instrumented tests (emulator):
@@ -118,7 +129,8 @@ Docs/              General docs for project (see Reference Files below)
   bumped independently of chat sessions — check that file for current
   versions before adding a new dependency (e.g. Room in Phase 2), don't
   assume a version from training data.
-- Build: `./gradlew build`
+- Build: `./gradlew build` runs lint + all unit tests (including ArchitectureTest). The Run ▶
+  button only installs; it does not run tests.
 - Run instrumented tests on the managed device (headless, boots its own emulator;
   the check that must pass before commit/PR): `./gradlew pixel8DebugAndroidTest`
 - Run instrumented tests on a running emulator (faster while writing a test):
@@ -147,3 +159,5 @@ before merging into main, even solo.
 - `Docs/kotlin_notes.md`, `Docs/android_compose_notes.md` — user's own private,
   gitignored Kotlin/Compose study notes (not in the repo). May reference these
   in conversation; don't expect them to exist on a fresh checkout.
+- `Docs/decisions.md` — why things are the way they are (dated, with "revisit if").
+  Read before changing a behaviour that looks like a bug — it may be intentional.
