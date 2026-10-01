@@ -1,6 +1,4 @@
 package com.practice.plant_user.data
 
-/** GrowZone container type, drives nesting rules (see Docs/domain_model.md). */
-enum class GrowZoneType { GREENHOUSE, PLOT, BOX, WILD }
-
+import com.practice.plant_user.model.GrowZoneType
 fun GrowZoneType.displayName(): String = name.lowercase().replaceFirstChar { it.uppercase() }

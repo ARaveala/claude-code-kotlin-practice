@@ -52,14 +52,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.practice.plant_user.data.GardenDatabase
-import com.practice.plant_user.data.GrowZoneType
 import com.practice.plant_user.data.displayName
+import com.practice.plant_user.model.Area
+import com.practice.plant_user.model.GrowZone
+import com.practice.plant_user.model.GrowZoneType
 import com.practice.plant_user.ui.theme.Plant_userTheme
 import com.practice.plant_user.viewmodel.GrowZoneViewModel
-import com.practice.plant_user.viewmodel.nestingRejectionReason
+import com.practice.plant_user.model.nestingRejectionReason
 
 // Placeholders — real caps are a Phase 3 "Sizing Caps" deliverable (domain_model.md), determined
 // by testing, not hardcoded assumptions. Note: at MIN_SCALE the grid draws ~3,700 cells/frame on a
@@ -78,18 +78,6 @@ private val ZONE_BORDER_WIDTH = 2.dp
 
 private const val MAX_GROW_ZONE_NAME_LENGTH = 50
 private val DEFAULT_TRANSFORM = CanvasTransform(scale = 1f, translation = Offset.Zero)
-
-data class GrowZone(
-    val id: Long,
-    val parentGrowZoneId: Long?,
-    val type: GrowZoneType,
-    val name: String,
-    val widthCm: Double,
-    val depthCm: Double,
-    val heightCm: Double?,
-    val xCm: Double,
-    val yCm: Double,
-)
 
 /** Whether [text] parses as a real, usable dimension — rejects blank/non-numeric/zero/negative
  * so a GrowZone can never be created 0x0 (hard to spot on the canvas, hard to delete after). */

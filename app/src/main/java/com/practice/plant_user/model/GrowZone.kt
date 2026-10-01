@@ -1,6 +1,11 @@
 package com.practice.plant_user.model
 
-import com.practice.plant_user.data.GrowZoneType
+
+/** GrowZone container type, drives nesting rules (see Docs/domain_model.md). */
+enum class GrowZoneType { GREENHOUSE, PLOT, BOX, WILD }
+
+/** A position in real world cm. Stays Double end to end; Float only at draw time in ui/. */
+data class PositionCm(val xCm: Double, val yCm: Double)
 
 data class GrowZone(
     val id: Long,
