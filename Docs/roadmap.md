@@ -23,6 +23,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   flat nesting depth cap, tested explicitly at each boundary. Tap to zoom
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
+  
 - [ ] **Phase 2.5 — Switch to Navigation 3**
   Replace the hand-rolled `if/else` router in `MainActivity` with Nav3.
   Motivation: all screens shared one Activity-scoped ViewModelStore, which

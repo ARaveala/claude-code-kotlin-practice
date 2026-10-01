@@ -85,13 +85,32 @@ bugs, nothing needs fixing now.
   identically on every real device," worth remembering if a real device
   bug ever doesn't reproduce on the emulator.
 
+- **Cross-platform (KMP) is a possible future direction, not planned.**
+  Baseline audit of Android-only code: MainActivity (platform shim, expected),
+  GardenDatabase (`Context`; database construction would split per platform),
+  Theme.kt (template dynamic colour: a design decision, not just a port),
+  GrowZoneViewModel (`android.util.Log`: needs a logger wrapper),
+  AreaCanvasScreen (`LocalContext` to build its ViewModel; removed in Step D).
+  Habit: keep `android.*` and `Context` out of shared logic, and pass platform
+  objects in from MainActivity.
+
+- **`GrowZoneViewModel` instances accumulate for the Activity's lifetime.**
+  `AreaCanvasScreen` creates them with `viewModel(key = "growZones-${area.id}")`,
+  which stores them in the Activity's ViewModelStore. Leaving the canvas never
+  clears them, so each visited Area keeps a ViewModel (and possibly its Room
+  observation) alive until the app closes. Correct per area, but grows with Areas
+  visited. Bounded by the 100 area cap, so not urgent. Fix: Nav3 per-entry
+  ViewModel decorator (`lifecycle-viewmodel-navigation3`) + hoist construction
+  out of the screen.
+  — Phase3 step D
+
 # From practice to release
 
 - **Release optimization off during early phases**
   app/build.gradle.kts build types, R8/ProGuard disabled, consider enable later.
 
 
-# Linter + andoird studio remarks
+# Linter + android studio remarks
 
 - **Duplicate dependencies**
   - app/build.gradle.kts

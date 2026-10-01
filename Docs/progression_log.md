@@ -35,14 +35,56 @@ Logging in GrowZoneViewModel's init showed it was constructed only once per proc
 Fixed with a per Area key. Learned: onCreate runs once, and navigation is recomposition; stack traces via Throwable(); viewModel overloads; lambdas with receiver.
 Did some research and some issues would be resolved by using Nav3 not to mention it may provide a faster passage to certain future features not yet documented. Worth the bloat?
 
+**phase2.5 switch to Navigation 3**
+- Migrated to Navigation 3 now while there are only two screens, before navigation
+  grows. Nav3 is stable (1.2.0), its runtime is multiplatform, and the back stack is a
+  plain observable list I own, which fits a possible cross platform future without
+  committing to it.
+- Merging dependencies: the Android docs' setup snippet is written as if Nav3 is the
+  only thing in the project, so I merged it into my catalog instead of copying it. It
+  would have added an alpha lifecycle version (Gradle resolves to the highest, dragging
+  all lifecycle artifacts onto alpha) and a serialization plugin version that didn't
+  match my Kotlin. Lesson: release notes version tables over guide snippets, and reuse
+  existing version refs.
+- Did the migration in small, separately buildable commits: keys file → extract
+  `PlantUserApp()` from MainActivity with no behaviour change → swap the if/else router
+  for `NavDisplay`. MainActivity now only does platform setup and passes the DAO in.
+- Chose the explicit serializer back stack (`navConfig`) over the reflection based
+  default: no reflection, and it's the multiplatform path. Cost: every new screen key
+  must be registered or state saving crashes at runtime(navigation/Destinations.kt).
+- Ran a quick audit of Android only imports as a cross platform baseline (logged in
+  known_issues).
+- Found that keyed ViewModels (`GrowZoneViewModel` per area) are never cleared from the
+  Activity's store, (Fix planned, logged in known_issues).
+
+**Testing**
+- Adopted test first for bugs: find the issue, write a test that proves it, then fix.
+  Applied it retroactively to rotation: wrote a state restore test against the Nav3
+  version, then checked out the old router to confirm it fails there and passes on the
+  fix.
+- Wrote the tests myself to learn the code Claude Code generated, rather than only
+  reviewing it.
+- First instrumented tests: created the missing `androidTest/` folder, set up a Gradle
+  Managed Device (headless, separate from my dev emulator). Found that
+  `connectedAndroidTest` uninstalls the app afterwards and wiped my dev emulator's data.
+- Moved to the v2 Compose test API (v1 is deprecated; v2 queues coroutines rather
+  than running them immediately, so async work must be waited for explicitly).
+- Debugging: wrote a `dumpLabels()` helper to print on-screen text and content
+  descriptions. It showed my assertion was checking a content description as text,
+  so the test failed for the wrong reason. Lesson: confirm a red test fails for
+  the intended reason before trusting it.
+
 TO DO: 
 
 - create a make test first mentality for claude code, to ensure clean error reports
 - provide a plan for a list system
 - provide plan for generic items such as pots and holes, so u can choose from a list, 
-rather then recreate new everytime. 
+rather then recreate new every time. 
 - find a few devices to start testing on
 - add change area name
 - add delete area 
-- add delete growzone
-- complete phase1's private study c++ comp snippets. 
+- add delete GrowZone
+- Test and fix rotation issues for canvas: `showAddDialog`, `focusedZoneId`, AddGrowZoneDialog fields
+- Unit test: every nav key registered in navConfig
+- Second managed device at minSdk for older phone testing
+- Add decisions doc, clarifying simply decisions made , with why, cost and revisit.
