@@ -11,10 +11,13 @@ composeBom = "2026.09.00"
 room3 = "3.0.3"
 ksp = "2.3.11"
 sqlite = "2.7.1"
+# code checking, version from git 2 years old
+konsist = "0.17.3"
 
 # Nav3
 nav3Core = "1.2.0"
 kotlinxSerializationCore = "1.11.0"
+constraintlayout = "2.2.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +47,9 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 # Navigation 3 add-ons
 androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleRuntimeKtx" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+# Code check
+konsist = { group = "com.lemonappdev", name = "konsist", version.ref = "konsist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
