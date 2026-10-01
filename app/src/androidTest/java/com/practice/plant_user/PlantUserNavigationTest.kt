@@ -6,6 +6,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -36,6 +37,10 @@ class PlantUserAppNavigationTest {
 
     private lateinit var db: GardenDatabase
 
+    companion object {
+        private const val TEST_AREA = "Test area"
+    }
+
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -43,11 +48,17 @@ class PlantUserAppNavigationTest {
         db = Room.inMemoryDatabaseBuilder<GardenDatabase>(context)
             .setDriver(AndroidSQLiteDriver())
             .build()
-        runBlocking { db.areaDao().insert(AreaEntity(1L, "Test area")) }
+        runBlocking { db.areaDao().insert(AreaEntity(1L, TEST_AREA)) }
     }
 
+    // cleanup may need to include separately , popups, drop down menus, bottom sheets
     @After
     fun tearDown() {
+        val cancelButtons = composeRule.onAllNodesWithText("Cancel")
+        if (cancelButtons.fetchSemanticsNodes().isNotEmpty()) {
+            cancelButtons[0].performClick()
+            composeRule.waitForIdle()
+        }
         db.close()
     }
 
@@ -58,6 +69,14 @@ class PlantUserAppNavigationTest {
         }
         return restorationTester
     }
+
+    // Room emits on its own thread, so wait for the list to actually load.
+    private fun waitForAreaList() {
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText(TEST_AREA).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     //debug only
     private fun dumpLabels(tag: String = "NavTest") {
         composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
@@ -71,17 +90,32 @@ class PlantUserAppNavigationTest {
                 Log.d(tag, "desc: " + node.config[SemanticsProperties.ContentDescription].joinToString())
             }
     }
+
     @Test
-    // Create test area, creat GrowZone, click/enter GrowZone , rotate.
-    fun stateRestore_rotate_onGrowZone() {
+    // In AreaList dialog box, keep state on rotate
+    fun stateRestore_rotate_addAreaDialog() {
+        val restorationTester = launchApp()
+        composeRule.onNodeWithContentDescription("Add Area").performClick()
+        composeRule.onNodeWithText("Area name").assertExists()
+        composeRule.onNode(hasSetTextAction() and hasText("Area name"))
+            .performTextInput("area51") // Type into dialog box
+        dumpLabels()
+
+        restorationTester.emulateSavedInstanceStateRestore()                           // "rotation"
+
+        composeRule.onNodeWithText("New Area").assertExists("Add area dialog closed after rotate")
+        composeRule.onNodeWithText("area51").assertExists("Area Name lost after rotate")
+
+    }
+
+    @Test
+    // Create test area, rotate on canvas.
+    fun stateRestore_rotate_onCanvas() {
         val restorationTester = launchApp()
 
-        // Room emits on its own thread, so wait for the list to actually load.
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("Test area").fetchSemanticsNodes().isNotEmpty()
-        }
+        waitForAreaList()
 
-        composeRule.onNodeWithText("Test area").performClick()
+        composeRule.onNodeWithText(TEST_AREA).performClick()
         composeRule.onNodeWithContentDescription("Add GrowZone").assertIsDisplayed()   // on canvas
 
         restorationTester.emulateSavedInstanceStateRestore()                           // "rotation"
@@ -89,19 +123,24 @@ class PlantUserAppNavigationTest {
         composeRule.onNodeWithContentDescription("Add GrowZone").assertExists(
             "Canvas lost after rotation: back stack did not survive state restore: After enter GrowZone")   // still on canvas
     }
+
     @Test
-    // In AreaList dialog box, keep state on rotate
-    fun stateRestore_rotate_addAreaDialog() {
+    // In Canvas when adding new GrowZone
+    fun stateRestore_rotate_addGrowZone() {
         val restorationTester = launchApp()
-        composeRule.onNodeWithContentDescription("Add Area").performClick()
+        waitForAreaList()
+
+        composeRule.onNodeWithText(TEST_AREA).performClick()
+        composeRule.onNodeWithContentDescription("Add GrowZone").performClick()   // on canvas
+        composeRule.onNodeWithText("New GrowZone").assertExists()
+        composeRule.onNode(hasSetTextAction() and hasText("Zone name"))
+            .performTextInput("Test1")
         dumpLabels()
-        composeRule.onNodeWithText("Area name").assertExists()
-        composeRule.onNode(hasSetTextAction()).performTextInput("area51") // Type into dialog box
-
         restorationTester.emulateSavedInstanceStateRestore()                           // "rotation"
-        composeRule.onNodeWithText("New Area").assertExists("Add area dialog closed after rotate")
-        composeRule.onNodeWithText("area51").assertExists("Area Name lost after rotate")
-
+        composeRule.onNodeWithText("New GrowZone").assertExists("Add GrowZone dialog box closed on rotate")
+        composeRule.onNodeWithText("Test1").assertExists("GrowZone name was lost on rotate")
     }
+
+
 
 }
