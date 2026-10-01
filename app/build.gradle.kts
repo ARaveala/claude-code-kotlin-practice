@@ -26,6 +26,9 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
         informational += "UnusedResources"
+        // "Newer version available" checks depend on the date, not the code, so they shouldn't
+        // fail a build. Version bumps are deliberate (see libs.versions.toml); still reported.
+        informational += setOf("AndroidGradlePluginVersion", "GradleDependency", "NewerVersionAvailable")
     }
     buildTypes {
         release {
@@ -62,6 +65,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -81,4 +85,6 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.kotlinx.serialization.core)
+    // Code checker
+    testImplementation(libs.konsist)
 }
