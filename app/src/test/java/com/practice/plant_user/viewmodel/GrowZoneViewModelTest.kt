@@ -1,13 +1,20 @@
 package com.practice.plant_user.viewmodel
 
-import com.practice.plant_user.data.GrowZoneType
-import com.practice.plant_user.ui.GrowZone
-import org.junit.Assert.assertEquals
+//import com.practice.plant_user.data.GrowZoneType
+import com.practice.plant_user.model.GrowZone
+import com.practice.plant_user.model.GrowZoneType
+import com.practice.plant_user.model.canNestGrowZone
+import com.practice.plant_user.model.nestingRejectionReason
+import com.practice.plant_user.model.nextNestedPositionCm
+import com.practice.plant_user.model.nextTopLevelXCm
+import junit.framework.TestCase.assertEquals
+//import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+
 
 private fun zone(
     xCm: Double,
@@ -59,24 +66,23 @@ class NextTopLevelXCmTest {
     }
 }
 
-class NextNestedOffsetCmTest {
+class NextNestedPositionCmTest {
 
     @Test
     fun `first child in an empty parent is inset from the corner, not flush at zero`() {
-        val result = nextNestedOffsetCm(existingSiblings = emptyList(), paddingCm = 20.0)
-
-        assertEquals(20f, result.x, 0f)
-        assertEquals(20f, result.y, 0f)
+        val result = nextNestedPositionCm(existingSiblings = emptyList(), paddingCm = 20.0)
+        assertEquals(20.0, result.xCm, 0.0)
+        assertEquals(20.0, result.yCm, 0.0)
     }
 
     @Test
     fun `next sibling stacks past the rightmost edge plus the padding, same y`() {
         val existing = listOf(zone(xCm = 20.0, widthCm = 100.0, parentGrowZoneId = 1L))
 
-        val result = nextNestedOffsetCm(existingSiblings = existing, paddingCm = 20.0)
+        val result = nextNestedPositionCm(existingSiblings = existing, paddingCm = 20.0)
 
-        assertEquals(140f, result.x, 0f)
-        assertEquals(20f, result.y, 0f)
+        assertEquals(140.0, result.xCm, 0.0)
+        assertEquals(20.0, result.yCm, 0.0)
     }
 }
 

@@ -27,9 +27,7 @@ fun PlantUserApp(areaDao: AreaDao) {
         )
     val areas by areaViewModel.areas.collectAsState()
     val backStack = rememberNavBackStack(navConfig, AreaListKey)
-//var selectedArea by remember { mutableStateOf<Area?>(null) }
-    //val backStack = null
-//    val backStack = null
+
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },     // system back / gesture

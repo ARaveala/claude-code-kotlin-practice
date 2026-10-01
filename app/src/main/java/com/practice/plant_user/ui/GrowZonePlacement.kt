@@ -2,6 +2,7 @@ package com.practice.plant_user.ui
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import com.practice.plant_user.model.GrowZone
 import kotlin.math.min
 
 /**

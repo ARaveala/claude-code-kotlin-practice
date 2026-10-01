@@ -2,7 +2,9 @@ package com.practice.plant_user.ui
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import com.practice.plant_user.data.GrowZoneType
+//import com.practice.plant_user.data.GrowZoneType
+import com.practice.plant_user.model.GrowZone
+import com.practice.plant_user.model.GrowZoneType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

@@ -1,6 +1,7 @@
 package com.practice.plant_user.data
 
 import androidx.room3.ColumnTypeConverter
+import com.practice.plant_user.model.GrowZoneType
 
 /** Stores [GrowZoneType] by name, not ordinal — reordering/inserting an enum value
  * later must not silently reinterpret already-stored rows as the wrong type. */

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practice.plant_user.data.AreaDao
 import com.practice.plant_user.data.AreaEntity
-import com.practice.plant_user.ui.Area
+import com.practice.plant_user.model.Area
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
