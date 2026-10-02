@@ -22,6 +22,10 @@ class GrowZoneViewModel(private val growZoneDao: GrowZoneDao, private val areaId
     init {
         Log.d("DEBUG::GrowZoneViewModel", "GrowZoneViewModel being created for areaId=$areaId")
     }
+    // debugging
+    override fun onCleared() {
+        Log.d("DEBUG::GrowZoneViewModel", "cleared for areaId=$areaId")
+    }
     val growZones: StateFlow<List<GrowZone>> = growZoneDao.getByArea(areaId)
         .map { entities ->
             entities.map {
