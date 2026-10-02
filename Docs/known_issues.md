@@ -21,6 +21,13 @@ MainActivity.kt , onCreate.
   tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
   updates protobuf.
 
+- **Canvas allocates per frame while panning.** ~5 s of panning: ~25.8k `Stroke`
+  (new Stroke per drawRect in grid and zone loops) and ~26.5k `Offset` (likely boxed
+  in the List returned by visibleGridCellOrigins). Short-lived, but GC churn → stutter
+  risk on older phones. Fix: hoist Stroke out of the loops (remember), iterate grid
+  cells without a boxed list. Verify with a before/after allocation recording.
+  — Phase 5
+
 # Potential Concerns
 
 Design/architecture points worth remembering for future phases, not

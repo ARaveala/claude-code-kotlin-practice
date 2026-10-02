@@ -23,7 +23,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   flat nesting depth cap, tested explicitly at each boundary. Tap to zoom
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
-  
+
 - [ ] **Phase 2.5 — Switch to Navigation 3**
   Replace the hand-rolled `if/else` router in `MainActivity` with Nav3.
   Motivation: all screens shared one Activity-scoped ViewModelStore, which
@@ -80,6 +80,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   resetting on navigation (known_issues.md, currently tagged Phase 5)
   is a natural candidate to fold in here too, decide when this phase
   starts rather than committing to it now.
+  Canvas allocations per frame seem a bit high (see known_issues + manual_checks M5) 
 
 - [ ] **Phase 6 — Watering icon + timestamp**
   Watering icon appears in zoomed-in pot/hole view. Press, sets
@@ -89,6 +90,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   Start single-user only: writing "last watered" to a personal calendar
   event/reminder. Multi-person sync + notification batching (avoiding
   per-plant spam) is a v2+ problem.
+  Register it with addCloseable and add a JVM test that store.clear() closes it.
 
 ## Explicitly out of scope for phases
 - Multi-user login/auth
