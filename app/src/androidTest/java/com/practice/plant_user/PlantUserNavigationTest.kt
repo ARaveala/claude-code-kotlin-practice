@@ -65,7 +65,7 @@ class PlantUserAppNavigationTest {
     private fun launchApp(): StateRestorationTester {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
-            Plant_userTheme { PlantUserApp(areaDao = db.areaDao()) }
+            Plant_userTheme { PlantUserApp(areaDao = db.areaDao(), growZoneDao = db.growZoneDao()) }
         }
         return restorationTester
     }
