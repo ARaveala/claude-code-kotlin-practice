@@ -19,11 +19,10 @@ class MainActivity : ComponentActivity() {
         Log.v(TAG, "onCreate: --- entering", Throwable())
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val areaDao = GardenDatabase.getInstance(applicationContext).areaDao()
-
+        val db = GardenDatabase.getInstance(applicationContext)
         setContent {
             Plant_userTheme {
-                PlantUserApp(areaDao)
+                PlantUserApp(areaDao = db.areaDao(), growZoneDao = db.growZoneDao())
             }
         }
     }

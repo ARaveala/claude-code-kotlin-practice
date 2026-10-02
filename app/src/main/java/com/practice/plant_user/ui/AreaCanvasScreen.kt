@@ -46,19 +46,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.practice.plant_user.data.GardenDatabase
 import com.practice.plant_user.data.displayName
 import com.practice.plant_user.model.Area
 import com.practice.plant_user.model.GrowZone
 import com.practice.plant_user.model.GrowZoneType
 import com.practice.plant_user.ui.theme.Plant_userTheme
-import com.practice.plant_user.viewmodel.GrowZoneViewModel
 import com.practice.plant_user.model.nestingRejectionReason
 
 // Placeholders — real caps are a Phase 3 "Sizing Caps" deliverable (domain_model.md), determined
@@ -100,13 +97,13 @@ private fun growZoneColor(type: GrowZoneType): Color = when (type) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AreaCanvasScreen(area: Area, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val growZoneViewModel: GrowZoneViewModel = viewModel(key = "growZones-${area.id}") {
-        GrowZoneViewModel(GardenDatabase.getInstance(context).growZoneDao(), area.id)
-    }
+fun AreaCanvasScreen( area: Area,
+                      growZones: List<GrowZone>,
+                      onAddGrowZone: (name: String, type: GrowZoneType, widthCm: Double, depthCm: Double, heightCm: Double?, parentId: Long?) -> Unit,
+                      onBack: () -> Unit,
+                      modifier: Modifier = Modifier,
+                      ) {{}
 
-    val growZones by growZoneViewModel.growZones.collectAsState()
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var focusedZoneId by remember { mutableStateOf<Long?>(null) }
     var transform by remember { mutableStateOf(DEFAULT_TRANSFORM) }
@@ -193,7 +190,7 @@ fun AreaCanvasScreen(area: Area, onBack: () -> Unit, modifier: Modifier = Modifi
             parentZone = focusedZone,
             allZones = growZones,
             onConfirm = { name, type, widthCm, depthCm, heightCm ->
-                growZoneViewModel.addGrowZone(name, type, widthCm, depthCm, heightCm, focusedZoneId)
+                onAddGrowZone(name, type, widthCm, depthCm, heightCm, focusedZoneId)
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false },
@@ -361,10 +358,16 @@ private fun AddGrowZoneDialog(
     )
 }
 
+// Deletable: i have had no use of this so far
 @Preview(showBackground = true)
 @Composable
 private fun AreaCanvasScreenPreview() {
     Plant_userTheme {
-        AreaCanvasScreen(area = Area(1L, "Backyard"), onBack = {})
+        AreaCanvasScreen(
+            area = Area(1L, "Backyard"),
+            growZones = emptyList(),
+            onAddGrowZone = { _, _, _, _, _, _ -> },
+            onBack = {},
+        )
     }
 }
