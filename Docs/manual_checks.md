@@ -28,3 +28,12 @@ reopen from recents.
 **Run when:** before a release, or after changing sizes or layout.
 **Steps:** run the app on a minSdk emulator profile.
 **Expected:** list, canvas, and dialogs usable; grid and zones render correctly.
+
+### M5 — Allocation profile while panning the canvas
+**Run when:** changing canvas drawing, gestures, or anything in the draw loop.
+**Steps:** Profiler → record Java/Kotlin allocations → pan for ~5 s → sort by count.
+**Expected:** no per-frame allocation of objects that could be created once
+(compare counts to the previous recording noted here).
+**Last recorded:** Stroke ~25.8k, Offset ~26.5k per 5 s (before Phase 5 fixes).
+
+### Tests to do list

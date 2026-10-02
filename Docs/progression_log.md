@@ -70,6 +70,24 @@ Did some research and some issues would be resolved by using Nav3 not to mention
 - Made version-update lint checks informational after a Gradle release broke the build
   with no code change.
 
+- ViewModel scoping (completes Nav3 migration)**
+- Scoped GrowZoneViewModel to its Nav3 back-stack entry (ViewModel-store decorator),
+  fixing ViewModels accumulating for the app's lifetime: one was left behind per Area
+  visited, because they lived in the Activity's store and were never cleared.
+- AreaCanvasScreen no longer builds its own ViewModel: it receives growZones and an
+  onAddGrowZone callback. It no longer touches the database or Context, and its preview
+  works for the first time.
+- Verified by hand rather than an automated test (would have needed injection just for
+  testability): onCleared() logging plus heap dumps. Started Docs/manual_checks.md for
+  checks like this, so others can repeat them.
+- Learned to read heap dumps: each class's count includes one `Class` row (the type's
+  metadata); instances with empty Depth are unreachable and just waiting for GC.
+- Found while profiling: the canvas allocates ~25.8k Stroke and ~26.5k Offset objects
+  per 5 s of panning (new Stroke per drawRect; boxed Offsets in a List). Logged for
+  Phase 5, not fixed here.
+- Gotcha: `./gradlew build`/`test` never compile androidTest/; a broken instrumented
+  test only shows up when running compileDebugAndroidTestKotlin or the device task.
+
 **Testing**
 - Adopted test first for bugs: find the issue, write a test that proves it, then fix.
   Applied it retroactively to rotation: wrote a state restore test against the Nav3
@@ -104,3 +122,13 @@ rather then recreate new every time.
 - **Area name cap (50 chars) is enforced only in the UI text field.** Move the rule to
   model/ and check it in the ViewModel too, so future paths (import, sync) can't bypass it.
 
+- Step 4: TAG constant + onCleared() logging in GrowZoneViewModel
+- Step D: log before/after (created vs cleared), per-entry ViewModel decorator, hoist
+  GrowZoneViewModel out of AreaCanvasScreen (screen takes growZones + onAddGrowZone),
+  growZoneDao passed from MainActivity
+- Unit test: every NavKey registered in navConfig
+- Zone-focus-on-rotation (after Step D)
+- PR + squash-merge feature/Nav3 (full suite on pixel8 first)
+- Later, own branch: Gradle 9.8 bump; second managed device at minSdk
+- learn about leakCanary and how to use it, , debugImplementation.
+- gain a abtter understanbding how to write this type of code, that uses a garbage collector, trhings must have no refrencing to be removed from heap 
