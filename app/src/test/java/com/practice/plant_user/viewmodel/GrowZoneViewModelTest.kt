@@ -1,6 +1,5 @@
 package com.practice.plant_user.viewmodel
 
-//import com.practice.plant_user.data.GrowZoneType
 import com.practice.plant_user.model.GrowZone
 import com.practice.plant_user.model.GrowZoneType
 import com.practice.plant_user.model.canNestGrowZone
@@ -8,7 +7,6 @@ import com.practice.plant_user.model.nestingRejectionReason
 import com.practice.plant_user.model.nextNestedPositionCm
 import com.practice.plant_user.model.nextTopLevelXCm
 import junit.framework.TestCase.assertEquals
-//import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

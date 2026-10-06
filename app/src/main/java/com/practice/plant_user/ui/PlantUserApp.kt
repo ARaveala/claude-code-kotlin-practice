@@ -50,10 +50,11 @@ fun PlantUserApp(areaDao: AreaDao, growZoneDao: GrowZoneDao) {
                 onAreaClick = { clicked -> backStack.add(AreaCanvasKey(clicked.id)) },  // push
                 modifier = Modifier.fillMaxSize(),
             )}
-            entry<AreaCanvasKey> { key ->
-                val area = areas.firstOrNull { it.id == key.areaId }
-                // Inside an entry, viewModel() now uses that entry's own store: no key needed.
-                val growZoneViewModel = viewModel { GrowZoneViewModel(growZoneDao, key.areaId) }
+            entry<AreaCanvasKey> { canvaskey ->
+                val area = areas.firstOrNull { it.id == canvaskey.areaId }
+                /// viewModel() uses this entry's own ViewModelStore (per-entry decorator),
+                // so no viewModel(key = ...) is needed to keep each area's ViewModel separate.
+                val growZoneViewModel = viewModel { GrowZoneViewModel(growZoneDao, canvaskey.areaId) }
                 val growZones by growZoneViewModel.growZones.collectAsState()
                 if (area != null) {
                     AreaCanvasScreen(
@@ -67,5 +68,4 @@ fun PlantUserApp(areaDao: AreaDao, growZoneDao: GrowZoneDao) {
             }
         },
     )
-
 }

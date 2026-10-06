@@ -130,4 +130,4 @@ rather then recreate new every time.
 - PR + squash-merge feature/Nav3 (full suite on pixel8 first)
 - Later, own branch: Gradle 9.8 bump; second managed device at minSdk
 - learn about leakCanary and how to use it, , debugImplementation.
-- gain a abtter understanbding how to write this type of code, that uses a garbage collector, trhings must have no refrencing to be removed from heap 
+- gain a better understanding how to write this type of code, that uses a garbage collector, things must have no referencing to be removed from heap 
