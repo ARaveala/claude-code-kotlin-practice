@@ -121,7 +121,7 @@ class PlantUserAppNavigationTest {
         restorationTester.emulateSavedInstanceStateRestore()                           // "rotation"
         // Add GrowZone button expected to exist on success
         composeRule.onNodeWithContentDescription("Add GrowZone").assertExists(
-            "Canvas lost after rotation: back stack did not survive state restore: After enter GrowZone")   // still on canvas
+            "Canvas lost after rotation: back stack did not survive state restore")   // still on canvas
     }
 
     @Test
