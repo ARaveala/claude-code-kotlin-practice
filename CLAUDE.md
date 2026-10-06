@@ -73,6 +73,9 @@ When explaining code or suggesting patterns, always note:
   mid-calculation (e.g. Compose `Offset`) — see decisions.md.
 - Bugs are fixed test-first: write a test that fails for the intended reason, then fix, user(me) must check
 failed test output first for clarity.
+- Every new Nav3 screen gets a state-restore test (open screen → rotate → still there)
+  in the instrumented navigation tests. This also catches a NavKey missing from
+  navConfig, which otherwise crashes on rotation.
 - UI state the user deliberately created (open dialogs, typed text) uses
   `rememberSaveable`; measured/derived values (e.g. canvas size) stay `remember`.
 

@@ -43,3 +43,19 @@ reported but don't fail the build.
 **Decision:** `pixel8DebugAndroidTest` is the check that must pass before a PR.
 **Why:** headless, no manual emulator start, and `connectedAndroidTest` uninstalls the
 app (wiping a dev emulator's data). DSL is @Incubating — may need edits on AGP upgrades.
+
+### 2026-10-02 — No separate navConfig registration test
+**Decision:** rely on a state-restore test per screen instead of a dedicated
+registration guard.
+**Why:** rotation tests already exercise the same lookup and catch a missing
+registration; a separate guard adds maintenance for no extra coverage.
+**Revisit if:** a missing registration ever reaches a device, or screens are added
+without their rotation test.
+
+### 2026-10-06 — Entering a GrowZone is canvas state, not navigation
+**Decision:** tapping a zone zooms within AreaCanvasScreen (focusedZoneId + transform);
+it doesn't push a Nav3 destination.
+**Why:** keeps one continuous pan/zoom canvas; matches back = leave Area.
+**Consequence:** zone focus must be saved by the screen itself to survive rotation
+(see known_issues), not by Nav3.
+**Revisit if:** zones gain their own detail views that feel like separate screens.
