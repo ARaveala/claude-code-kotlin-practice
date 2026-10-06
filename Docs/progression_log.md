@@ -105,6 +105,9 @@ Did some research and some issues would be resolved by using Nav3 not to mention
   so the test failed for the wrong reason. Lesson: confirm a red test fails for
   the intended reason before trusting it.
 
+**Creating pre commit hooks, and pr protection**
+
+
 TO DO: 
 
 - create a make test first mentality for claude code, to ensure clean error reports
