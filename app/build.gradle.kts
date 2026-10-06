@@ -5,13 +5,12 @@ plugins {
 
     alias(libs.plugins.kotlin.serialization)
 
-//    id("org.jlleitschuh.gradle.ktlint")
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
-//tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask::class) {
-//    onlyIf { false }
-//}
-
+tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask::class) {
+    onlyIf { false }
+}
 
 android {
     namespace = "com.practice.plantUser"
@@ -37,6 +36,7 @@ android {
         // fail a build. Version bumps are deliberate (see libs.versions.toml); still reported.
         informational += setOf("AndroidGradlePluginVersion", "GradleDependency", "NewerVersionAvailable")
     }
+
     buildTypes {
         release {
             optimization {
@@ -61,6 +61,13 @@ android {
                 }
             }
         }
+    }
+}
+
+ktlint {
+    version.set("1.4.1") // pin a ktlint engine version explicitly
+    filter {
+        exclude("**/generated/**", "**/build/**")
     }
 }
 

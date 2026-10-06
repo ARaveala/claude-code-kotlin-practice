@@ -7,10 +7,7 @@ import kotlin.math.floor
 /**
  * Pan/zoom state for the Area canvas, in screen pixel terms: screenPoint = worldPoint * scale + translation.
  */
-data class CanvasTransform(
-    val scale: Float,
-    val translation: Offset,
-)
+data class CanvasTransform(val scale: Float, val translation: Offset)
 
 /**
  * Applies one gesture frame update (from Compose's detectTransformGestures) to [current].
@@ -25,7 +22,7 @@ fun updateTransform(
     pan: Offset,
     zoom: Float,
     minScale: Float,
-    maxScale: Float,
+    maxScale: Float
 ): CanvasTransform {
     val newScale = (current.scale * zoom).coerceIn(minScale, maxScale)
     val worldPointUnderCentroid = (centroid - current.translation) / current.scale
@@ -38,11 +35,7 @@ fun updateTransform(
  * of [canvasSize], given the current [transform]. Only computes cells inside the current viewport,
  * so cost is bounded by screen size, not by how far the canvas has been panned.
  */
-fun visibleGridCellOrigins(
-    canvasSize: Size,
-    transform: CanvasTransform,
-    gridSpacingPx: Float,
-): List<Offset> {
+fun visibleGridCellOrigins(canvasSize: Size, transform: CanvasTransform, gridSpacingPx: Float): List<Offset> {
     val topLeftWorld = (Offset.Zero - transform.translation) / transform.scale
     val bottomRightWorld = (Offset(canvasSize.width, canvasSize.height) - transform.translation) / transform.scale
 

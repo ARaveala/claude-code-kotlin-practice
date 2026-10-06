@@ -19,7 +19,15 @@ class UpdateTransformTest {
         val start = CanvasTransform(scale = 1.5f, translation = Offset(10f, 20f))
         val pan = Offset(30f, -15f)
 
-        val result = updateTransform(start, centroid = Offset(500f, 500f), pan = pan, zoom = 1f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+        val result =
+            updateTransform(
+                start,
+                centroid = Offset(500f, 500f),
+                pan = pan,
+                zoom = 1f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
 
         assertEquals(start.scale, result.scale, FLOAT_TOLERANCE)
         assertEquals(start.translation.x + pan.x, result.translation.x, FLOAT_TOLERANCE)
@@ -34,7 +42,15 @@ class UpdateTransformTest {
         val centroid = Offset(400f, 300f)
         val worldPointBefore = (centroid - start.translation) / start.scale
 
-        val result = updateTransform(start, centroid = centroid, pan = Offset.Zero, zoom = 2.5f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+        val result =
+            updateTransform(
+                start,
+                centroid = centroid,
+                pan = Offset.Zero,
+                zoom = 2.5f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
 
         val screenPointAfter = worldPointBefore * result.scale + result.translation
         assertEquals(centroid.x, screenPointAfter.x, FLOAT_TOLERANCE)
@@ -46,7 +62,14 @@ class UpdateTransformTest {
         val start = CanvasTransform(scale = 4f, translation = Offset.Zero)
 
         val result =
-            updateTransform(start, centroid = Offset(100f, 100f), pan = Offset.Zero, zoom = 10f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+            updateTransform(
+                start,
+                centroid = Offset(100f, 100f),
+                pan = Offset.Zero,
+                zoom = 10f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
 
         assertEquals(MAX_SCALE, result.scale, FLOAT_TOLERANCE)
     }
@@ -62,7 +85,7 @@ class UpdateTransformTest {
                 pan = Offset.Zero,
                 zoom = 0.01f,
                 minScale = MIN_SCALE,
-                maxScale = MAX_SCALE,
+                maxScale = MAX_SCALE
             )
 
         assertEquals(MIN_SCALE, result.scale, FLOAT_TOLERANCE)
@@ -75,7 +98,14 @@ class UpdateTransformTest {
         val start = CanvasTransform(scale = 1f, translation = Offset(123f, 456f))
 
         val result =
-            updateTransform(start, centroid = Offset(200f, 200f), pan = Offset.Zero, zoom = 1f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+            updateTransform(
+                start,
+                centroid = Offset(200f, 200f),
+                pan = Offset.Zero,
+                zoom = 1f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
 
         assertEquals(start, result)
     }
@@ -89,10 +119,26 @@ class UpdateTransformTest {
         val centroid = Offset(500f, 500f)
         val start = CanvasTransform(scale = 1f, translation = Offset.Zero)
 
-        val afterZoomIn = updateTransform(start, centroid, pan = Offset.Zero, zoom = 2f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+        val afterZoomIn =
+            updateTransform(start, centroid, pan = Offset.Zero, zoom = 2f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
         val afterPan =
-            updateTransform(afterZoomIn, centroid, pan = Offset(100f, 50f), zoom = 1f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
-        val afterZoomOut = updateTransform(afterPan, centroid, pan = Offset.Zero, zoom = 0.5f, minScale = MIN_SCALE, maxScale = MAX_SCALE)
+            updateTransform(
+                afterZoomIn,
+                centroid,
+                pan = Offset(100f, 50f),
+                zoom = 1f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
+        val afterZoomOut =
+            updateTransform(
+                afterPan,
+                centroid,
+                pan = Offset.Zero,
+                zoom = 0.5f,
+                minScale = MIN_SCALE,
+                maxScale = MAX_SCALE
+            )
 
         assertEquals(1f, afterZoomOut.scale, FLOAT_TOLERANCE)
         assertEquals(50f, afterZoomOut.translation.x, FLOAT_TOLERANCE)
@@ -150,6 +196,9 @@ class VisibleGridCellOriginsTest {
 
         val origins = visibleGridCellOrigins(Size(1080f, 2100f), transform, gridSpacingPx = 131.25f)
 
-        assertTrue("expected MIN_SCALE cell count in the low thousands, got ${origins.size}", origins.size in 3000..4500)
+        assertTrue(
+            "expected MIN_SCALE cell count in the low thousands, got ${origins.size}",
+            origins.size in 3000..4500
+        )
     }
 }

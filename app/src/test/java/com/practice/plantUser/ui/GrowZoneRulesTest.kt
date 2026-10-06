@@ -6,7 +6,7 @@ import com.practice.plantUser.model.nextNestedPositionCm
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
-class GrowZoneRulesTests {
+class GrowZoneRulesTest {
     @Test
     fun nextNestedPosition_keepsDoublePrecision() {
         val sibling =
@@ -19,7 +19,7 @@ class GrowZoneRulesTests {
                 depthCm = 50.0,
                 heightCm = null,
                 xCm = 100.0,
-                yCm = 20.0,
+                yCm = 20.0
             )
         // rightmost edge 333.3 + 20.0 padding = 353.3
         val position = nextNestedPositionCm(listOf(sibling))

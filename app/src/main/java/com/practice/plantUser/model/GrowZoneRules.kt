@@ -11,10 +11,7 @@ private const val MAX_NESTING_DEPTH = 3
 
 /** Placeholder auto-layout (Phase 2): next top-level zone goes to the right of the current
  * rightmost zone's edge, plus a fixed gap. No drag-to-place UI exists yet (Phase 5). */
-fun nextTopLevelXCm(
-    existingZones: List<GrowZone>,
-    gapCm: Double = GROW_ZONE_GAP_CM,
-): Double {
+fun nextTopLevelXCm(existingZones: List<GrowZone>, gapCm: Double = GROW_ZONE_GAP_CM): Double {
     if (existingZones.isEmpty()) return 0.0
     val rightmostEdge = existingZones.maxOf { it.xCm + it.widthCm }
     return rightmostEdge + gapCm
@@ -22,20 +19,14 @@ fun nextTopLevelXCm(
 
 /** Same stacking idea as [nextTopLevelXCm], scoped to siblings under the same parent zone instead
  * of an Area's top level, and inset from the parent's corner instead of starting flush at zero. */
-fun nextNestedPositionCm(
-    existingSiblings: List<GrowZone>,
-    paddingCm: Double = NESTED_ZONE_PADDING_CM,
-): PositionCm {
+fun nextNestedPositionCm(existingSiblings: List<GrowZone>, paddingCm: Double = NESTED_ZONE_PADDING_CM): PositionCm {
     if (existingSiblings.isEmpty()) return PositionCm(paddingCm, paddingCm)
     val rightmostEdge = existingSiblings.maxOf { it.xCm + it.widthCm }
     return PositionCm(rightmostEdge + paddingCm, paddingCm)
 }
 
 /** [zone]'s depth in its nesting chain, counting itself — a top-level zone (no parent) is 1. */
-private fun nestingDepth(
-    zone: GrowZone,
-    allZones: List<GrowZone>,
-): Int {
+private fun nestingDepth(zone: GrowZone, allZones: List<GrowZone>): Int {
     var depth = 1
     var parentId = zone.parentGrowZoneId
     while (parentId != null) {
@@ -53,10 +44,7 @@ private fun nestingDepth(
  * size/fit is deferred to Phase 3's real `bounds_enforced` containment, not checked here.
  * [parent] null means top-level in the Area, always valid.
  */
-fun nestingRejectionReason(
-    parent: GrowZone?,
-    allZones: List<GrowZone>,
-): String? {
+fun nestingRejectionReason(parent: GrowZone?, allZones: List<GrowZone>): String? {
     if (parent == null) return null
     if (nestingDepth(parent, allZones) + 1 > MAX_NESTING_DEPTH) {
         return "GrowZones can only nest $MAX_NESTING_DEPTH levels deep"
@@ -64,7 +52,5 @@ fun nestingRejectionReason(
     return null
 }
 
-fun canNestGrowZone(
-    parent: GrowZone?,
-    allZones: List<GrowZone>,
-): Boolean = nestingRejectionReason(parent, allZones) == null
+fun canNestGrowZone(parent: GrowZone?, allZones: List<GrowZone>): Boolean =
+    nestingRejectionReason(parent, allZones) == null

@@ -10,10 +10,7 @@ import kotlin.math.min
  * xCm/yCm are relative to its parent's local origin, not the Area's — top-level zones (no parent)
  * are already absolute, so the loop is a no-op for them.
  */
-fun absolutePositionCm(
-    zone: GrowZone,
-    allZones: List<GrowZone>,
-): Offset {
+fun absolutePositionCm(zone: GrowZone, allZones: List<GrowZone>): Offset {
     var xCm = zone.xCm.toFloat()
     var yCm = zone.yCm.toFloat()
     var parentId = zone.parentGrowZoneId
@@ -30,16 +27,12 @@ fun absolutePositionCm(
  * The smallest (innermost) zone whose absolute bounds contain [pointCm], or null if none. Smallest
  * wins so tapping inside a nested child selects the child, not the parent zone it sits inside.
  */
-fun hitTestZone(
-    zones: List<GrowZone>,
-    pointCm: Offset,
-): GrowZone? =
-    zones
-        .filter { zone ->
-            val pos = absolutePositionCm(zone, zones)
-            pointCm.x in pos.x..(pos.x + zone.widthCm.toFloat()) &&
-                pointCm.y in pos.y..(pos.y + zone.depthCm.toFloat())
-        }.minByOrNull { it.widthCm * it.depthCm }
+fun hitTestZone(zones: List<GrowZone>, pointCm: Offset): GrowZone? = zones
+    .filter { zone ->
+        val pos = absolutePositionCm(zone, zones)
+        pointCm.x in pos.x..(pos.x + zone.widthCm.toFloat()) &&
+            pointCm.y in pos.y..(pos.y + zone.depthCm.toFloat())
+    }.minByOrNull { it.widthCm * it.depthCm }
 
 /**
  * Transform that fits [zone] fully inside [viewportSizePx], centered — the "contain" behaviour
@@ -52,7 +45,7 @@ fun fitTransform(
     viewportSizePx: Size,
     cmToPx: Float,
     minScale: Float,
-    maxScale: Float,
+    maxScale: Float
 ): CanvasTransform {
     val posCm = absolutePositionCm(zone, allZones)
     val zoneWidthPx = zone.widthCm.toFloat() * cmToPx
@@ -63,7 +56,7 @@ fun fitTransform(
     val zoneCenterPx =
         Offset(
             (posCm.x + zone.widthCm.toFloat() / 2f) * cmToPx,
-            (posCm.y + zone.depthCm.toFloat() / 2f) * cmToPx,
+            (posCm.y + zone.depthCm.toFloat() / 2f) * cmToPx
         )
     val viewportCenterPx = Offset(viewportSizePx.width / 2f, viewportSizePx.height / 2f)
     val translation = viewportCenterPx - zoneCenterPx * scale

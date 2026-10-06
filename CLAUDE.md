@@ -140,7 +140,7 @@ Docs/              General docs for project (see Reference Files below)
   `./gradlew connectedAndroidTest`. WARNING: uninstalls the app afterwards, wiping
   that emulator's data. Use a dedicated test AVD, not the dev one.
 - Run a single test class:
-  `./gradlew pixel8DebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.practice.plantUser.PlantUserAppNavigationTest`
+  `./gradlew pixel8DebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.practice.plantUser.PlantUserNavigationTest`
   (append `#methodName` for one test)
 - Test reports: `find app/build/reports -name index.html`; per-test logcat:
   `app/build/outputs/androidTest-results/`

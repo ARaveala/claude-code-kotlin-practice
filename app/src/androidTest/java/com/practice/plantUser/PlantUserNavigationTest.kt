@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PlantUserAppNavigationTest {
+class PlantUserNavigationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -124,7 +124,7 @@ class PlantUserAppNavigationTest {
         restorationTester.emulateSavedInstanceStateRestore() // "rotation"
         // Add GrowZone button expected to exist on success
         composeRule.onNodeWithContentDescription("Add GrowZone").assertExists(
-            "Canvas lost after rotation: back stack did not survive state restore",
+            "Canvas lost after rotation: back stack did not survive state restore"
         ) // still on canvas
     }
 

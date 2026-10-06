@@ -17,17 +17,16 @@ abstract class GardenDatabase : RoomDatabase() {
     companion object {
         @Volatile private var instance: GardenDatabase? = null
 
-        fun getInstance(context: Context): GardenDatabase =
-            instance ?: synchronized(this) {
-                instance ?: Room
-                    .databaseBuilder(
-                        context.applicationContext,
-                        GardenDatabase::class.java,
-                        "garden_database",
-                    ).setDriver(AndroidSQLiteDriver())
-                    .fallbackToDestructiveMigration(true)
-                    .build()
-                    .also { instance = it }
-            }
+        fun getInstance(context: Context): GardenDatabase = instance ?: synchronized(this) {
+            instance ?: Room
+                .databaseBuilder(
+                    context.applicationContext,
+                    GardenDatabase::class.java,
+                    "garden_database"
+                ).setDriver(AndroidSQLiteDriver())
+                .fallbackToDestructiveMigration(true)
+                .build()
+                .also { instance = it }
+        }
     }
 }

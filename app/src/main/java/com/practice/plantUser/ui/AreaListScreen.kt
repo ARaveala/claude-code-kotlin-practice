@@ -36,26 +36,20 @@ private const val MAX_AREAS = 100
 
 /** Whether another Area can be added given the current count. Boundary logic pulled out of the
  * Compose state closure in [MainActivity] so it's unit testable without instrumentation. */
-fun canAddArea(
-    currentCount: Int,
-    max: Int = MAX_AREAS,
-): Boolean = currentCount < max
+fun canAddArea(currentCount: Int, max: Int = MAX_AREAS): Boolean = currentCount < max
 
 /** Gates a name TextField's input: keeps [current] if [candidate] would exceed [maxLength],
  * otherwise accepts [candidate]. Pulled out of the dialog's onValueChange for the same reason.
  * Generic enough to reuse for any name-capped field (GrowZone's included), not Area-specific. */
-fun coerceNameInput(
-    current: String,
-    candidate: String,
-    maxLength: Int = MAX_AREA_NAME_LENGTH,
-): String = if (candidate.length <= maxLength) candidate else current
+fun coerceNameInput(current: String, candidate: String, maxLength: Int = MAX_AREA_NAME_LENGTH): String =
+    if (candidate.length <= maxLength) candidate else current
 
 @Composable
 fun AreaListScreen(
     areas: List<Area>,
     onAddArea: (String) -> Unit,
     onAreaClick: (Area) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -65,33 +59,33 @@ fun AreaListScreen(
             FloatingActionButton(onClick = { showAddDialog = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Area")
             }
-        },
+        }
     ) { innerPadding ->
         if (areas.isEmpty()) {
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center,
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "No areas yet — tap + to add one",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         } else {
             LazyColumn(
                 modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentPadding =
-                    androidx.compose.foundation.layout
-                        .PaddingValues(16.dp),
+                androidx.compose.foundation.layout
+                    .PaddingValues(16.dp),
                 verticalArrangement =
-                    androidx.compose.foundation.layout.Arrangement
-                        .spacedBy(8.dp),
+                androidx.compose.foundation.layout.Arrangement
+                    .spacedBy(8.dp)
             ) {
                 items(areas, key = { it.id }) { area ->
                     AreaRow(area = area, onClick = { onAreaClick(area) })
@@ -107,34 +101,27 @@ fun AreaListScreen(
                 onAddArea(name)
                 showAddDialog = false
             },
-            onDismiss = { showAddDialog = false },
+            onDismiss = { showAddDialog = false }
         )
     }
 }
 
 @Composable
-private fun AreaRow(
-    area: Area,
-    onClick: () -> Unit,
-) {
+private fun AreaRow(area: Area, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
     ) {
         Text(
             text = area.name,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp)
         )
     }
 }
 
 @Composable
-private fun AddAreaDialog(
-    atCapacity: Boolean,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
+private fun AddAreaDialog(atCapacity: Boolean, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
@@ -149,14 +136,14 @@ private fun AddAreaDialog(
                     onValueChange = { input -> name = coerceNameInput(name, input) },
                     singleLine = true,
                     label = { Text("Area name") },
-                    supportingText = { Text("${name.length}/$MAX_AREA_NAME_LENGTH") },
+                    supportingText = { Text("${name.length}/$MAX_AREA_NAME_LENGTH") }
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = { onConfirm(name.trim()) },
-                enabled = !atCapacity && name.isNotBlank(),
+                enabled = !atCapacity && name.isNotBlank()
             ) {
                 Text("Add")
             }
@@ -165,7 +152,7 @@ private fun AddAreaDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        },
+        }
     )
 }
 
@@ -176,7 +163,7 @@ private fun AreaListScreenPreview() {
         AreaListScreen(
             areas = listOf(Area(1L, "Backyard"), Area(2L, "Greenhouse")),
             onAddArea = {},
-            onAreaClick = {},
+            onAreaClick = {}
         )
     }
 }

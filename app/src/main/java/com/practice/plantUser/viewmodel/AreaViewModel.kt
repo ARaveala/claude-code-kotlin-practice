@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class AreaViewModel(
-    private val areaDao: AreaDao,
-) : ViewModel() {
+class AreaViewModel(private val areaDao: AreaDao) : ViewModel() {
     val areas: StateFlow<List<Area>> =
         areaDao
             .getAll()

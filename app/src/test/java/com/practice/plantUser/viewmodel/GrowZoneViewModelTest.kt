@@ -19,7 +19,7 @@ private fun zone(
     parentGrowZoneId: Long? = null,
     type: GrowZoneType = GrowZoneType.PLOT,
     depthCm: Double = 100.0,
-    id: Long = 0,
+    id: Long = 0
 ) = GrowZone(
     id = id,
     parentGrowZoneId = parentGrowZoneId,
@@ -29,7 +29,7 @@ private fun zone(
     depthCm = depthCm,
     heightCm = null,
     xCm = xCm,
-    yCm = 0.0,
+    yCm = 0.0
 )
 
 class NextTopLevelXCmTest {
@@ -54,7 +54,7 @@ class NextTopLevelXCmTest {
         val existing =
             listOf(
                 zone(xCm = 500.0, widthCm = 50.0),
-                zone(xCm = 0.0, widthCm = 100.0),
+                zone(xCm = 0.0, widthCm = 100.0)
             )
 
         val result = nextTopLevelXCm(existingZones = existing, gapCm = 50.0)

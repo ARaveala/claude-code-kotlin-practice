@@ -4,10 +4,7 @@ package com.practice.plantUser.model
 enum class GrowZoneType { GREENHOUSE, PLOT, BOX, WILD }
 
 /** A position in real world cm. Stays Double end to end; Float only at draw time in ui/. */
-data class PositionCm(
-    val xCm: Double,
-    val yCm: Double,
-)
+data class PositionCm(val xCm: Double, val yCm: Double)
 
 data class GrowZone(
     val id: Long,
@@ -18,5 +15,5 @@ data class GrowZone(
     val depthCm: Double,
     val heightCm: Double?,
     val xCm: Double,
-    val yCm: Double,
+    val yCm: Double
 )

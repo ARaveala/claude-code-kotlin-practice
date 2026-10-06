@@ -83,18 +83,15 @@ fun isPositiveDimension(text: String): Boolean {
 
 /** Gates a dimension TextField's input to digits and at most one decimal point, letting the
  * user type a partial value (e.g. "12.") without rejecting it outright. */
-fun coerceDimensionInput(
-    current: String,
-    candidate: String,
-): String = if (candidate.isEmpty() || candidate.matches(Regex("^\\d*\\.?\\d*$"))) candidate else current
+fun coerceDimensionInput(current: String, candidate: String): String =
+    if (candidate.isEmpty() || candidate.matches(Regex("^\\d*\\.?\\d*$"))) candidate else current
 
-private fun growZoneColor(type: GrowZoneType): Color =
-    when (type) {
-        GrowZoneType.GREENHOUSE -> Color(0xFF81C784)
-        GrowZoneType.PLOT -> Color(0xFFA1887F)
-        GrowZoneType.BOX -> Color(0xFFFFB74D)
-        GrowZoneType.WILD -> Color(0xFF64B5F6)
-    }
+private fun growZoneColor(type: GrowZoneType): Color = when (type) {
+    GrowZoneType.GREENHOUSE -> Color(0xFF81C784)
+    GrowZoneType.PLOT -> Color(0xFFA1887F)
+    GrowZoneType.BOX -> Color(0xFFFFB74D)
+    GrowZoneType.WILD -> Color(0xFF64B5F6)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,13 +104,11 @@ fun AreaCanvasScreen(
         widthCm: Double,
         depthCm: Double,
         heightCm: Double?,
-        parentId: Long?,
+        parentId: Long?
     ) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
-    {}
-
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var focusedZoneId by remember { mutableStateOf<Long?>(null) }
     var transform by remember { mutableStateOf(DEFAULT_TRANSFORM) }
@@ -155,9 +150,9 @@ fun AreaCanvasScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
+                }
             )
-        },
+        }
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             PannableZoomableGrid(
@@ -170,24 +165,24 @@ fun AreaCanvasScreen(
                     if (tapped != null) zoomToZone(tapped)
                 },
                 cmToPx = cmToPx,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             )
 
             Column(
                 modifier = Modifier.align(Alignment.CenterStart).padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (focusedZoneId != null) {
                     SmallFloatingActionButton(
                         onClick = { zoomOutOneLevel() },
-                        containerColor = accentColor,
+                        containerColor = accentColor
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Zoom out")
                     }
                 }
                 SmallFloatingActionButton(
                     onClick = { showAddDialog = true },
-                    containerColor = accentColor,
+                    containerColor = accentColor
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add GrowZone")
                 }
@@ -203,7 +198,7 @@ fun AreaCanvasScreen(
                 onAddGrowZone(name, type, widthCm, depthCm, heightCm, focusedZoneId)
                 showAddDialog = false
             },
-            onDismiss = { showAddDialog = false },
+            onDismiss = { showAddDialog = false }
         )
     }
 }
@@ -216,7 +211,7 @@ private fun PannableZoomableGrid(
     onCanvasSizeChange: (Size) -> Unit,
     onTap: (pointCm: Offset) -> Unit,
     cmToPx: Float,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     val gridSpacingPx = with(density) { GRID_SPACING.toPx() }
@@ -233,19 +228,19 @@ private fun PannableZoomableGrid(
 
     Canvas(
         modifier =
-            modifier
-                .onSizeChanged { onCanvasSizeChange(it.toSize()) }
-                .pointerInput(Unit) {
-                    detectTapGestures { tapOffset ->
-                        val pointWorldPx = (tapOffset - currentTransform.translation) / currentTransform.scale
-                        currentOnTap(pointWorldPx / cmToPx)
-                    }
-                }.pointerInput(Unit) {
-                    detectTransformGestures { centroid, pan, zoom, _ ->
-                        val updated = updateTransform(currentTransform, centroid, pan, zoom, MIN_SCALE, MAX_SCALE)
-                        currentOnTransformChange(updated)
-                    }
-                },
+        modifier
+            .onSizeChanged { onCanvasSizeChange(it.toSize()) }
+            .pointerInput(Unit) {
+                detectTapGestures { tapOffset ->
+                    val pointWorldPx = (tapOffset - currentTransform.translation) / currentTransform.scale
+                    currentOnTap(pointWorldPx / cmToPx)
+                }
+            }.pointerInput(Unit) {
+                detectTransformGestures { centroid, pan, zoom, _ ->
+                    val updated = updateTransform(currentTransform, centroid, pan, zoom, MIN_SCALE, MAX_SCALE)
+                    currentOnTransformChange(updated)
+                }
+            }
     ) {
         val cellSize = Size(gridSpacingPx * transform.scale, gridSpacingPx * transform.scale)
         for (worldOrigin in visibleGridCellOrigins(size, transform, gridSpacingPx)) {
@@ -253,7 +248,7 @@ private fun PannableZoomableGrid(
                 color = GRID_COLOR,
                 topLeft = worldOrigin * transform.scale + transform.translation,
                 size = cellSize,
-                style = Stroke(width = strokeWidthPx),
+                style = Stroke(width = strokeWidthPx)
             )
         }
 
@@ -265,13 +260,13 @@ private fun PannableZoomableGrid(
             drawRect(
                 color = color.copy(alpha = 0.3f),
                 topLeft = topLeftPx * transform.scale + transform.translation,
-                size = sizePx * transform.scale,
+                size = sizePx * transform.scale
             )
             drawRect(
                 color = color,
                 topLeft = topLeftPx * transform.scale + transform.translation,
                 size = sizePx * transform.scale,
-                style = Stroke(width = zoneBorderPx),
+                style = Stroke(width = zoneBorderPx)
             )
         }
     }
@@ -282,7 +277,7 @@ private fun AddGrowZoneDialog(
     parentZone: GrowZone?,
     allZones: List<GrowZone>,
     onConfirm: (name: String, type: GrowZoneType, widthCm: Double, depthCm: Double, heightCm: Double?) -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var type by remember { mutableStateOf(GrowZoneType.GREENHOUSE) }
@@ -307,7 +302,7 @@ private fun AddGrowZoneDialog(
                     onValueChange = { input -> name = coerceNameInput(name, input, MAX_GROW_ZONE_NAME_LENGTH) },
                     singleLine = true,
                     label = { Text("Zone name") },
-                    supportingText = { Text("${name.length}/$MAX_GROW_ZONE_NAME_LENGTH") },
+                    supportingText = { Text("${name.length}/$MAX_GROW_ZONE_NAME_LENGTH") }
                 )
                 Spacer(Modifier.height(8.dp))
                 SingleChoiceSegmentedButtonRow {
@@ -315,7 +310,7 @@ private fun AddGrowZoneDialog(
                         SegmentedButton(
                             selected = type == option,
                             onClick = { type = option },
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = GrowZoneType.entries.size),
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = GrowZoneType.entries.size)
                         ) {
                             Text(option.displayName())
                         }
@@ -331,7 +326,7 @@ private fun AddGrowZoneDialog(
                         onValueChange = { input -> widthText = coerceDimensionInput(widthText, input) },
                         singleLine = true,
                         label = { Text("Width (cm)") },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.width(8.dp))
                     TextField(
@@ -339,7 +334,7 @@ private fun AddGrowZoneDialog(
                         onValueChange = { input -> depthText = coerceDimensionInput(depthText, input) },
                         singleLine = true,
                         label = { Text("Depth (cm)") },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.height(8.dp))
@@ -347,16 +342,22 @@ private fun AddGrowZoneDialog(
                     value = heightText,
                     onValueChange = { input -> heightText = coerceDimensionInput(heightText, input) },
                     singleLine = true,
-                    label = { Text("Height (cm, optional)") },
+                    label = { Text("Height (cm, optional)") }
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(name.trim(), type, widthText.toDouble(), depthText.toDouble(), heightText.toDoubleOrNull())
+                    onConfirm(
+                        name.trim(),
+                        type,
+                        widthText.toDouble(),
+                        depthText.toDouble(),
+                        heightText.toDoubleOrNull()
+                    )
                 },
-                enabled = canSubmit,
+                enabled = canSubmit
             ) {
                 Text("Create")
             }
@@ -365,11 +366,11 @@ private fun AddGrowZoneDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        },
+        }
     )
 }
 
-// Deletable: i have had no use of this so far
+// Deletable: I have had no use of this so far
 @Preview(showBackground = true)
 @Composable
 private fun AreaCanvasScreenPreview() {
@@ -378,7 +379,7 @@ private fun AreaCanvasScreenPreview() {
             area = Area(1L, "Backyard"),
             growZones = emptyList(),
             onAddGrowZone = { _, _, _, _, _, _ -> },
-            onBack = {},
+            onBack = {}
         )
     }
 }

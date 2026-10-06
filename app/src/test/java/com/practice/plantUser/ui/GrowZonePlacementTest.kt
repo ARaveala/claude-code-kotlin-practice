@@ -2,7 +2,6 @@ package com.practice.plantUser.ui
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-// import com.practice.plantUser.data.GrowZoneType
 import com.practice.plantUser.model.GrowZone
 import com.practice.plantUser.model.GrowZoneType
 import org.junit.Assert.assertEquals
@@ -15,7 +14,7 @@ private fun zone(
     xCm: Double,
     yCm: Double,
     widthCm: Double = 100.0,
-    depthCm: Double = 100.0,
+    depthCm: Double = 100.0
 ) = GrowZone(
     id = id,
     parentGrowZoneId = parentGrowZoneId,
@@ -25,7 +24,7 @@ private fun zone(
     depthCm = depthCm,
     heightCm = null,
     xCm = xCm,
-    yCm = yCm,
+    yCm = yCm
 )
 
 class AbsolutePositionCmTest {
@@ -104,7 +103,7 @@ class FitTransformTest {
                 viewportSizePx = Size(200f, 200f),
                 cmToPx = 1f,
                 minScale = 0.2f,
-                maxScale = 5f,
+                maxScale = 5f
             )
 
         assertEquals(2f, result.scale, 0f)
@@ -124,7 +123,7 @@ class FitTransformTest {
                 viewportSizePx = Size(400f, 200f),
                 cmToPx = 1f,
                 minScale = 0.2f,
-                maxScale = 5f,
+                maxScale = 5f
             )
 
         assertEquals(2f, result.scale, 0f)

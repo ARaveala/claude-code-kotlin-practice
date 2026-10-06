@@ -12,9 +12,7 @@ data object AreaListKey : NavKey
 
 /** The canvas for one Area. Carries only the id, not the Area itself. */
 @Serializable
-data class AreaCanvasKey(
-    val areaId: Long,
-) : NavKey
+data class AreaCanvasKey(val areaId: Long) : NavKey
 
 /**
  * Tells the back-stack saver which concrete key types exist, so it can

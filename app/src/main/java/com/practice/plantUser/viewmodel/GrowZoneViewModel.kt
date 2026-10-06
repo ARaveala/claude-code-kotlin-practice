@@ -17,10 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class GrowZoneViewModel(
-    private val growZoneDao: GrowZoneDao,
-    private val areaId: Long,
-) : ViewModel() {
+class GrowZoneViewModel(private val growZoneDao: GrowZoneDao, private val areaId: Long) : ViewModel() {
     init {
         Log.d("DEBUG::GrowZoneViewModel", "GrowZoneViewModel being created for areaId=$areaId")
     }
@@ -44,7 +41,7 @@ class GrowZoneViewModel(
                         depthCm = it.depthCm,
                         heightCm = it.heightCm,
                         xCm = it.xCm,
-                        yCm = it.yCm,
+                        yCm = it.yCm
                     )
                 }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -57,7 +54,7 @@ class GrowZoneViewModel(
         widthCm: Double,
         depthCm: Double,
         heightCm: Double?,
-        parentGrowZoneId: Long?,
+        parentGrowZoneId: Long?
     ) {
         val parentZone = growZones.value.firstOrNull { it.id == parentGrowZoneId }
         if (!canNestGrowZone(parentZone, growZones.value)) return
@@ -80,8 +77,8 @@ class GrowZoneViewModel(
                     depthCm = depthCm,
                     heightCm = heightCm,
                     xCm = xCm,
-                    yCm = yCm,
-                ),
+                    yCm = yCm
+                )
             )
         }
     }

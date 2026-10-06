@@ -13,16 +13,16 @@ import com.practice.plantUser.model.GrowZoneType
             entity = AreaEntity::class,
             parentColumns = ["id"],
             childColumns = ["areaId"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = GrowZoneEntity::class,
             parentColumns = ["id"],
             childColumns = ["parentGrowZoneId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
+            onDelete = ForeignKey.CASCADE
+        )
     ],
-    indices = [Index("areaId"), Index("parentGrowZoneId")],
+    indices = [Index("areaId"), Index("parentGrowZoneId")]
 )
 data class GrowZoneEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -37,5 +37,5 @@ data class GrowZoneEntity(
     // Position relative to the parent GrowZone's local origin if nested, otherwise relative to
     // the Area canvas origin. No drag-to-place UI yet (Phase 5) — Phase 2 auto-places on creation.
     val xCm: Double,
-    val yCm: Double,
+    val yCm: Double
 )
