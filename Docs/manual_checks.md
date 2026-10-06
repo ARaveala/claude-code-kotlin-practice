@@ -18,11 +18,13 @@ open area B → back.
 add-GrowZone dialog on the canvas.
 **Expected:** dialog still open, typed text kept.
 
-### M3 — Restore after process death (not tried yet, pre-emptive)
-**Run when:** touching navigation keys, navConfig, or screen loading.
-**Steps:** open a canvas → Home → `adb shell am kill com.practice.plant_user` →
-reopen from recents.
+### M3 — Restore after process death
+**Steps:** open a canvas → press Home (app must be in background) →
+`adb shell am kill com.practice.plant_user` → confirm dead with
+`adb shell pidof com.practice.plant_user` (no output) → open the emulator's
+recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** returns to the same canvas (a brief blank is a known issue).
+**Don't:** use Android Studio Stop/Run, which force-stops and discards saved state.
 
 ### M4 — Older device (not tried yet, pre-emptive)
 **Run when:** before a release, or after changing sizes or layout.

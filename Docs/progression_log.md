@@ -126,7 +126,6 @@ rather then recreate new every time.
 - Step D: log before/after (created vs cleared), per-entry ViewModel decorator, hoist
   GrowZoneViewModel out of AreaCanvasScreen (screen takes growZones + onAddGrowZone),
   growZoneDao passed from MainActivity
-- Unit test: every NavKey registered in navConfig
 - Zone-focus-on-rotation (after Step D)
 - PR + squash-merge feature/Nav3 (full suite on pixel8 first)
 - Later, own branch: Gradle 9.8 bump; second managed device at minSdk

@@ -106,15 +106,6 @@ bugs, nothing needs fixing now.
   Habit: keep `android.*` and `Context` out of shared logic, and pass platform
   objects in from MainActivity. Model/ is already plain Kotlin.
 
-- **`GrowZoneViewModel` instances accumulate for the Activity's lifetime.**
-  `AreaCanvasScreen` creates them with `viewModel(key = "growZones-${area.id}")`,
-  which stores them in the Activity's ViewModelStore. Leaving the canvas never
-  clears them, so each visited Area keeps a ViewModel (and possibly its Room
-  observation) alive until the app closes. Correct per area, but grows with Areas
-  visited. Bounded by the 100 area cap, so not urgent. Fix: Nav3 per-entry
-  ViewModel decorator (`lifecycle-viewmodel-navigation3`) + hoist construction
-  out of the screen.
-- NOW
 
 - **Zone focus is lost on rotation.** `focusedZoneId` and `transform` are plain
   `remember`. They must be saved together or the UI shows "inside a zone" at default
