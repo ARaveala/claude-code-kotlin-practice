@@ -140,7 +140,4 @@ class PlantUserAppNavigationTest {
         composeRule.onNodeWithText("New GrowZone").assertExists("Add GrowZone dialog box closed on rotate")
         composeRule.onNodeWithText("Test1").assertExists("GrowZone name was lost on rotate")
     }
-
-
-
 }
