@@ -31,5 +31,3 @@
   → rejected/snapped, toggle on + valid → allowed, toggle off →
   always allowed), plus manual on device confirmation of the visual
   feedback, which isn't something a unit test can verify.
-  See known_issues :  **`GrowZoneViewModel` instances accumulate for the Activity's lifetime.**, starting with test that shows onCleared() does not fire when leaving canvas
-

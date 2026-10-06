@@ -54,3 +54,4 @@ fun nestingRejectionReason(parent: GrowZone?, allZones: List<GrowZone>): String?
 
 fun canNestGrowZone(parent: GrowZone?, allZones: List<GrowZone>): Boolean =
     nestingRejectionReason(parent, allZones) == null
+
