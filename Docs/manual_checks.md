@@ -20,8 +20,8 @@ add-GrowZone dialog on the canvas.
 
 ### M3 — Restore after process death
 **Steps:** open a canvas → press Home (app must be in background) →
-`adb shell am kill com.practice.plant_user` → confirm dead with
-`adb shell pidof com.practice.plant_user` (no output) → open the emulator's
+`adb shell am kill com.practice.plantUser` → confirm dead with
+`adb shell pidof com.practice.plantUser` (no output) → open the emulator's
 recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** returns to the same canvas (a brief blank is a known issue).
 **Don't:** use Android Studio Stop/Run, which force-stops and discards saved state.

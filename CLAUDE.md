@@ -98,7 +98,7 @@ failed test output first for clarity.
 
 ## Project Structure
 ```
-app/src/main/java/com/practice/plant_user/
+app/src/main/java/com/practice/plantUser/
   ├── MainActivity.kt   — Android entry point only: edge-to-edge, theme, builds the
   │                       DAO(s) from applicationContext and passes them to PlantUserApp.
   │                       Keep it thin; platform setup lives here, app logic doesn't.
@@ -117,9 +117,9 @@ app/src/main/java/com/practice/plant_user/
   ├── data/          Room 3: GardenDatabase, entities, DAOs. Depends on model.
   └── model/         Plain Kotlin, no Android/Compose/Room. Area, GrowZone, GrowZoneType,
                      PositionCm, GrowZoneRules.kt (nesting + layout rules). Depends on nothing.
-app/src/test/java/com/practice/plant_user/         — JVM unit tests (no emulator):
+app/src/test/java/com/practice/plantUser/         — JVM unit tests (no emulator):
                                                      ui/ pure functions, viewmodel/
-app/src/androidTest/java/com/practice/plant_user/  — instrumented tests (emulator):
+app/src/androidTest/java/com/practice/plantUser/  — instrumented tests (emulator):
                                                      state restore across rotation
 app/src/main/res/  Icons, strings, colors
 Docs/              General docs for project (see Reference Files below)
@@ -140,7 +140,7 @@ Docs/              General docs for project (see Reference Files below)
   `./gradlew connectedAndroidTest`. WARNING: uninstalls the app afterwards, wiping
   that emulator's data. Use a dedicated test AVD, not the dev one.
 - Run a single test class:
-  `./gradlew pixel8DebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.practice.plant_user.PlantUserAppNavigationTest`
+  `./gradlew pixel8DebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.practice.plantUser.PlantUserAppNavigationTest`
   (append `#methodName` for one test)
 - Test reports: `find app/build/reports -name index.html`; per-test logcat:
   `app/build/outputs/androidTest-results/`

@@ -122,7 +122,7 @@ bugs, nothing needs fixing now.
 
 - **Process-death gap on the canvas.** Urgent once Area deletion comes to play. 
   After process death the back stack restores immediately but `areas` starts empty until Room emits, so the canvas entry briefly renders nothing. Decide: placeholder vs pop back if the Area no longer exists (loading, loaded).
-  Reproduce it with: open a canvas, press Home, run adb shell am kill com.practice.plant_user, then reopen the app from recents.
+  Reproduce it with: open a canvas, press Home, run adb shell am kill com.practice.plantUser, then reopen the app from recents.
 
 
 # From practice to release

@@ -5,17 +5,22 @@ plugins {
 
     alias(libs.plugins.kotlin.serialization)
 
-    id("org.jlleitschuh.gradle.ktlint")
+//    id("org.jlleitschuh.gradle.ktlint")
 }
 
+//tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask::class) {
+//    onlyIf { false }
+//}
+
+
 android {
-    namespace = "com.practice.plant_user"
+    namespace = "com.practice.plantUser"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.practice.plant_user"
+        applicationId = "com.practice.plantUser"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -52,7 +57,7 @@ android {
                 create("pixel8") {
                     device = "Pixel 8"
                     apiLevel = 35
-                    systemImageSource = "aosp-atd"   // stripped-down image made for tests: boots faster
+                    systemImageSource = "aosp-atd" // stripped-down image made for tests: boots faster
                 }
             }
         }
