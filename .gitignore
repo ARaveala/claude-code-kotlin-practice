@@ -4,9 +4,10 @@ local.properties
 Docs/kotlin_notes.md
 Docs/android_compose_notes.md
 Docs/claude_proggression notes.md
-Docs/private_issues
+Docs/private_issues.md
 *.jks
 *.keystore
+claude_old.md
 
 # Build artifacts
 .gradle/

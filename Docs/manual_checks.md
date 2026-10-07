@@ -16,7 +16,7 @@ open area B → back.
 **Why manual:** StateRestorationTester can give a false pass for dialogs (see known_issues).
 **Steps:** open the add-area dialog, type a name, rotate the emulator. Repeat for the
 add-GrowZone dialog on the canvas.
-**Expected:** dialog still open, typed text kept.
+**Expected:** dialog still open, typed text kept, measurement dialog.
 
 ### M3 — Restore after process death
 **Steps:** open a canvas → press Home (app must be in background) →
@@ -37,5 +37,3 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** no per-frame allocation of objects that could be created once
 (compare counts to the previous recording noted here).
 **Last recorded:** Stroke ~25.8k, Offset ~26.5k per 5 s (before Phase 5 fixes).
-
-### Tests to do list

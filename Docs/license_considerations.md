@@ -1,7 +1,7 @@
 # License considerations
 
 Verify each item against the project's own LICENSE/README before relying
-on it; terms can change between versions. Last reviewed: (fill in date).
+on it; terms can change between versions. Last reviewed: (07.10.2026).
 
 ## Tooling (dev/CI, not shipped in the app)
 - **gitleaks** (scanner): MIT.
