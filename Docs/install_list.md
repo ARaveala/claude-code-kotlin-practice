@@ -11,3 +11,18 @@
 - [ ] Android Studio opens and can create a new "Empty Activity" project
 - [ ] Emulator (AVD) launches successfully and shows the default app
 - [ ] Emulator gesture controls (pinch/rotate) checked in Extended Controls panel
+
+## optional, recommended
+- [ ] gitleaks, local secret scanning before pushing (CI also runs it )
+- [ ] GitHub CLI(gh): open PR's and view CI results from the terminal
+- [ ] claude code: only needed if using the assisted  AI workflow
+
+## Setup steps
+- [ ] Enable the commit-msg hook (hooks are not tracked by git): chmod +x .git/hooks/commit-msg (script in git_workflow.md)
+- [ ] optional: enable EditorConfig support in android studio (settings-> Editor-> code style)
+
+## verify
+- [ ] `./gradlew build` succeeds from the project root
+- [ ] `./gradlew ktlintCheck` runs and reports pass/fail without errors
+- [ ] `gitleaks version` prints a version (if installed)
+- [ ] `gh --version` prints a version (if installed)
