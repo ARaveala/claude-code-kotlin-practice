@@ -1,0 +1,15 @@
+title = "plant_user gitleaks config"
+
+[extend]
+useDefault = true
+
+# Custom rule: absolute home directory paths leak the local username
+[[rules]]
+id = "personal-home-path"
+description = "Absolute home directory path (leaks local username)"
+regex = '''/(home|Users)/[A-Za-z0-9._-]+/'''
+keywords = ["/home/", "/users/"]
+
+# Don't let the config file flag itself
+[allowlist]
+paths = ['''\.gitleaks\.toml$''']
