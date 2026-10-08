@@ -1,5 +1,4 @@
 package probe
 
-
-fun   badlyFormatted( ) {   
+fun badlyFormatted() {
 }
