@@ -24,7 +24,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   into a GrowZone (originally scoped to Phase 5) landed early here
   instead, alongside the nesting mechanics.
 
-- [ ] **Phase 2.5 — Switch to Navigation 3**
+- [x] **Phase 2.5 — Switch to Navigation 3**
   Replace the hand-rolled `if/else` router in `MainActivity` with Nav3.
   Motivation: all screens shared one Activity-scoped ViewModelStore, which
   caused the Area/GrowZone mix up bug (patched short term with a per Area
@@ -47,19 +47,19 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   `areaId` (Database Inspector); heap dump after several visits shows no
   leftover `GrowZoneViewModel` instances.
   
-- [ ] **Phase 3 — GrowZone completeness basic (resize, move, containment)**
-  Finger drag resize and manual measurement entry, both producing the
-  same scale to cm result. Determine real sizing caps here via testing
-  (see domain_model.md — Sizing Caps). Also pulled forward from the old
-  Phase 5 scope: drag to move a GrowZone, and actually enforcing
-  `bounds_enforced` for GrowZone in GrowZone containment (currently a
-  placeholder auto layout only, per known_issues.md). Exit criterion: a
-  GrowZone can be created, resized, moved, and nested with real
-  containment — no PlacedItem work starts until this is solid.
+- [ ] **Phase 3 — GrowZone completeness (resize, move, containment)**
+  Split into 3a–3d for testability. Scope and exit criteria for each
+  are in `Docs/phases/phase_3/`.
+  - 3a: manual measurement entry + sizing caps (domain_model.md, Sizing Caps)
+  - 3b: finger-drag resize, must match 3a's scale-to-cm result exactly
+  - 3c: drag move, with `position_locked`
+  - 3d: `bounds_enforced` collision enforcement + visual feedback
+  Overall exit criterion: a GrowZone can be created, resized, moved, and
+  nested with real containment. No PlacedItem work starts until this is solid.
 
 - [ ] **Phase 3.5 — Addition of custom GrowZone**
-	Custom GrowZone follows the same rules as non custom, except
-	user now gets to define name and colour for the zone. When user is prompted for GrowZone, user gets to choose custom. This custom option is then added to the interface. This will require a drop down menu for these options, simplest option is to create a drop down from the start , this piece of code has reusability.
+    Custom GrowZone follows the same rules as non custom, except
+    user now gets to define name and colour for the zone. When user is prompted for GrowZone, user gets to choose custom. This custom option is then added to the interface. This will require a drop down menu for these options, simplest option is to create a drop down from the start , this piece of code has reusability.
 
 - [ ] **Phase 4 — PlacedItem (pot/hole) creation + detail card**
   Color-swatch placeholder (left), fields (right): label, plant name,
@@ -90,7 +90,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   Start single-user only: writing "last watered" to a personal calendar
   event/reminder. Multi-person sync + notification batching (avoiding
   per-plant spam) is a v2+ problem.
-  Register it with addCloseable and add a JVM test that store.clear() closes it.
+
 
 ## Explicitly out of scope for phases
 - Multi-user login/auth

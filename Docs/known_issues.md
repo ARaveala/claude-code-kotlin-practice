@@ -11,10 +11,6 @@ Build/tooling gotchas, as they come up.
   single finger pans, the anomaly is emulator input simulation, not
   app code. Not yet tested on a real device
 
-- **Phone rotate whilst in area causes kick back to list of areas**
-Potentially, remember { mutableStateOf<Area?>(null) } uses remember, not rememberSaveable.
-MainActivity.kt , onCreate. 
-
 - **`connectedAndroidTest` uninstalls the app afterwards**, wiping the target emulator's
   data. Use the managed device, or a dedicated test AVD.
 - **`sun.misc.Unsafe` warnings during Gradle runs** come from protobuf inside the build
@@ -43,7 +39,7 @@ bugs, nothing needs fixing now.
   need to define one; the grid should likely switch to being cm based
   at that point so it functions as an actual ruler, not just a zoom
   indicator.
-  — Phase 3
+  — Phase 3a
 
 - **Canvas pan/zoom (`CanvasTransform`) resets on navigating away and back.**
   Currently unavoidable, it's local `remember` state. Worth
@@ -62,7 +58,7 @@ bugs, nothing needs fixing now.
 - **Panning is currently unbounded** (no clamp to content extents).
   Correct for now for empty canvas, nothing to bound around yet. Worth
   revisiting once there's placed content (clamp like Miro/draw.io do).
-  — Phase 3
+  — Phase 3d/phase3c
 
 - **naming conventions**
   If Area names or type names are the same, this may affect user experince and
@@ -102,7 +98,6 @@ bugs, nothing needs fixing now.
   GardenDatabase (`Context`; database construction would split per platform),
   Theme.kt (template dynamic colour: a design decision, not just a port),
   GrowZoneViewModel (`android.util.Log`: needs a logger wrapper),
-  AreaCanvasScreen (`LocalContext` to build its ViewModel; removed in Step D).
   Habit: keep `android.*` and `Context` out of shared logic, and pass platform
   objects in from MainActivity. Model/ is already plain Kotlin.
 
@@ -111,8 +106,6 @@ bugs, nothing needs fixing now.
   `remember`. They must be saved together or the UI shows "inside a zone" at default
   zoom. Likely approach: save `focusedZoneId`, recompute the zoom with `fitTransform`
   once the canvas is measured (doesn't decide the Phase 5 "persist pan/zoom" question).
-  Need to scope viewmodels to each entry, so a test can pass in fake zones.
-
 
 - **`StateRestorationTester` is an emulation of rotation.** It rebuilds the composition
   in the same Activity. Dialog windows can linger briefly and give a false pass. The
@@ -122,7 +115,7 @@ bugs, nothing needs fixing now.
 
 - **Process-death gap on the canvas.** Urgent once Area deletion comes to play. 
   After process death the back stack restores immediately but `areas` starts empty until Room emits, so the canvas entry briefly renders nothing. Decide: placeholder vs pop back if the Area no longer exists (loading, loaded).
-  Reproduce it with: open a canvas, press Home, run adb shell am kill com.practice.plant_user, then reopen the app from recents.
+  Reproduce it with: open a canvas, press Home, run adb shell am kill com.practice.plantUser, then reopen the app from recents.
 
 
 # From practice to release

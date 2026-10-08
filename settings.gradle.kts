@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "plant_user"
+rootProject.name = "plantUser"
 include(":app")

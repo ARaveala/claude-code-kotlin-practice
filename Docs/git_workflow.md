@@ -65,7 +65,7 @@ git checkout feature/short-name
 git rebase main
 
 ### Bookmark this state (AFTER catching up with main, BEFORE cleaning up)
-git branch -f backup/x
+git branch -f backup/short-name
 
 ### Clean up and test every commit, in one step
 git rebase -i --autosquash --exec "./gradlew test && second test" main
@@ -73,11 +73,12 @@ git rebase -i --autosquash --exec "./gradlew test && second test" main
 # Instrumented tests once, on the final result (This process will otherwise take very long)
 ./gradlew pixel8DebugAndroidTest
 
+# first push of the branch
 git push -u origin feature/short-name
 
-git push --force-with-lease ( refuses to push if the remote branch has commits you have not fetched )
-OR
-git push --force origin feature/short-name
+# Refuses to push if the remote branch has commits you have not fetched
+git push --force-with-lease
+
 ```
 
 ## Squash Commits Before PR (optional, if a feature branch got messy)
