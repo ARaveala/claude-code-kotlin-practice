@@ -14,6 +14,7 @@
 - width_cm, depth_cm, height_cm (nullable — plot/box only)
 - shape (rect to start; extend later)
 - bounds_enforced (bool, default true) — see Wall Collision rules below
+- position_locked (bool, default false) — added in Phase 3c; if true, the zone rejects move
 
 **PlacedItem** (unifies pot and hole — same entity, `kind` field distinguishes)
 - id, grow_zone_id (nullable — an item can exist directly in an Area, unnested)
@@ -55,15 +56,13 @@ containment shows up then.
 
 - GrowZone within GrowZone placement enforces containment by default (`bounds_enforced = true`): child bounds must stay fully within parent bounds, no partial overlap.
 - Can be toggled off per-placement if the user wants freeform/overlapping layout.
-- Pots and Holes are always exempt from wall collision — free placement, no containment enforcement.
+- Pots and Holes may be exempt from wall collision — free placement, no containment enforcement.
 - Top-level GrowZones (direct children of an Area, no parent GrowZone) use the same
   `bounds_enforced` flag to govern overlap with sibling GrowZones in that Area — `true`
   (default) keeps siblings apart, `false` allows freeform/overlapping placement. Same flag,
   same meaning, just no parent to be contained by at that level.
-- This is independent from move-locking. If GrowZones get a `position_locked` field later
-  (mirroring PlacedItem's), it governs whether a zone can be moved at all — a separate axis
-  from whether it's allowed to overlap. Not built until a phase actually adds GrowZone
-  dragging (Phase 5+), to avoid a speculative field with no consumer yet.
+- `position_locked` independent from `bounds_enforced`.
+   GrowZones get a `position_locked` field (bool, default false, mirroring PlacedItem's), added in Phase 3c with drag move. It governs whether a zone can be moved at all, including resizing, a separate axis from whether it's allowed to overlap.
 - This is also how "visually overlapping, but not sharing conditions" is meant to work: a Box
   that visually sits on top of a Plot without being managed by it is just a top-level Box
   (`parent_grow_zone_id = null`) with `bounds_enforced = false`, positioned so it happens to
@@ -74,6 +73,7 @@ containment shows up then.
 
 - Dimension caps exist to prevent overflow/rendering issues at extreme zoom and to catch fat-finger entry (e.g. a 5000cm box).
 - Exact cap values are TBD — determine via testing in Phase 3, not hardcoded assumptions yet.
+- Soft warnings for absurd sizes TBD.
 - Caps are a sanity ceiling, not a physical/weight simulation. Weight-based limits (e.g. "70kg full") are informational only, not a validation gate — soil density varies too much to enforce as a hard rule.
 
 ## Rendering Rules (Level of Detail)

@@ -16,12 +16,12 @@ open area B → back.
 **Why manual:** StateRestorationTester can give a false pass for dialogs (see known_issues).
 **Steps:** open the add-area dialog, type a name, rotate the emulator. Repeat for the
 add-GrowZone dialog on the canvas.
-**Expected:** dialog still open, typed text kept.
+**Expected:** dialog still open, typed text kept, measurement dialog.
 
 ### M3 — Restore after process death
 **Steps:** open a canvas → press Home (app must be in background) →
-`adb shell am kill com.practice.plant_user` → confirm dead with
-`adb shell pidof com.practice.plant_user` (no output) → open the emulator's
+`adb shell am kill com.practice.plantUser` → confirm dead with
+`adb shell pidof com.practice.plantUser` (no output) → open the emulator's
 recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** returns to the same canvas (a brief blank is a known issue).
 **Don't:** use Android Studio Stop/Run, which force-stops and discards saved state.
@@ -37,5 +37,3 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** no per-frame allocation of objects that could be created once
 (compare counts to the previous recording noted here).
 **Last recorded:** Stroke ~25.8k, Offset ~26.5k per 5 s (before Phase 5 fixes).
-
-### Tests to do list

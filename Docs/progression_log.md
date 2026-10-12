@@ -4,7 +4,7 @@
 - 64-bit lib packages in the official docs were outdated/unnecessary - skipped, installed tar package.
 - Unpacked in `~` rather than a system wide location - single-user machine, no need for sudo managed shared install.
 - Chose Empty Activity template (Kotlin, Compose) per roadmap/CLAUDE.md plan.
-- Scaffolded project into existing repo folder; package name resolved to `com.practice.plant_user`.
+- Scaffolded project into existing repo folder; package name resolved to `com.practice.plantUser`.
 - `./gradlew build` initially failed: JAVA_HOME not set, Set JAVA_HOME to Android Studio's bundled `jbr` path in `~/.bashrc`
   (reused existing JDK, no separate install needed).
 - `./gradlew build` confirmed BUILD SUCCESSFUL after the fix.
@@ -105,29 +105,21 @@ Did some research and some issues would be resolved by using Nav3 not to mention
   so the test failed for the wrong reason. Lesson: confirm a red test fails for
   the intended reason before trusting it.
 
-TO DO: 
-
-- create a make test first mentality for claude code, to ensure clean error reports
-- provide a plan for a list system
-- provide plan for generic items such as pots and holes, so u can choose from a list, 
-rather then recreate new every time. 
-- find a few devices to start testing on
-- add change area name
-- add delete area 
-- add delete GrowZone
-- Test and fix rotation issues for canvas: `showAddDialog`, `focusedZoneId`, AddGrowZoneDialog fields
-- Unit test: every nav key registered in navConfig
-- Second managed device at minSdk for older phone testing
-- Add decisions doc, clarifying simply decisions made , with why, cost and revisit.
-- **Area name cap (50 chars) is enforced only in the UI text field.** Move the rule to
-  model/ and check it in the ViewModel too, so future paths (import, sync) can't bypass it.
-
-- Step 4: TAG constant + onCleared() logging in GrowZoneViewModel
-- Step D: log before/after (created vs cleared), per-entry ViewModel decorator, hoist
-  GrowZoneViewModel out of AreaCanvasScreen (screen takes growZones + onAddGrowZone),
-  growZoneDao passed from MainActivity
-- Zone-focus-on-rotation (after Step D)
-- PR + squash-merge feature/Nav3 (full suite on pixel8 first)
-- Later, own branch: Gradle 9.8 bump; second managed device at minSdk
-- learn about leakCanary and how to use it, , debugImplementation.
-- gain a better understanding how to write this type of code, that uses a garbage collector, things must have no referencing to be removed from heap 
+**Pre-commit hooks, lint, CI and PR protection**
+Done now while any reconfiguration is still easy, and so that checks which shouldn't
+cost time (formatting, secrets) are automatic rather than caught in review.
+- Added ktlint with a `.editorconfig` as the style source of truth. Also added this to a pre-commit hook
+Gotcha: the Gradle
+  plugin version (14.x) and the ktlint engine version (1.x) are different numbers; using
+  the plugin's version as the engine's fails with "Could not find ktlint-cli".
+- Added a GitHub Actions CI workflow (ktlint, lint, tests, gitleaks), so the same checks
+  run even if someone turns off the local hooks. Branch protection to follow once the
+  checks have run once.
+- Looked at extras for later: detekt (static analysis for complexity), editorconfig-checker
+  (whitespace rules for non-Kotlin files), Dependabot (dependency updates), LeakCanary
+  (memory leaks, debug builds only). None needed yet.
+- Added gitleaks (secret scanning, with a custom rule for home-directory paths) and a
+  license considerations doc, as a reminder in case this ever goes public. Project is MIT.
+- Simplified CLAUDE.md. The documentation is growing and every always-loaded line costs
+  tokens. I also want to keep learning Kotlin myself: Claude makes some fundamental
+  mistakes I can already spot as a beginner, so I'm keeping the review habit.
