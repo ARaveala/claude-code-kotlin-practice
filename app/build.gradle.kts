@@ -8,10 +8,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
-tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask::class) {
-    onlyIf { false }
-}
-
 android {
     namespace = "com.practice.plantUser"
     compileSdk {
