@@ -24,6 +24,9 @@ Build/tooling gotchas, as they come up.
   cells without a boxed list. Verify with a before/after allocation recording.
   — Phase 5
 
+- **AddGrowZone dialog box, on rotate does not resize for rotated screen**
+Width and depth are partially hidden, and height is not visible at all when screen is rotated to the side - Phase3
+
 # Potential Concerns
 
 Design/architecture points worth remembering for future phases, not

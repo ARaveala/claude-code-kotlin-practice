@@ -15,3 +15,4 @@ rather then recreate new every time.
 - learn about leakCanary and how to use it, , debugImplementation.
 - gain a better understanding how to write this type of code, that uses a garbage collector, things must have no referencing to be removed from heap
 - Find a way to automatically test clean up
+- Refactor android tests, collectFailures() used by all and helper functions

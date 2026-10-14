@@ -49,7 +49,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   
 - [ ] **Phase 3 — GrowZone completeness (resize, move, containment)**
   Split into 3a–3d for testability. Scope and exit criteria for each
-  are in `Docs/phases/phase_3/`.
+  are in `Docs/phases/phase_3.md/`.
   - 3a: manual measurement entry + sizing caps (domain_model.md, Sizing Caps)
   - 3b: finger-drag resize, must match 3a's scale-to-cm result exactly
   - 3c: drag move, with `position_locked`

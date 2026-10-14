@@ -280,10 +280,10 @@ private fun AddGrowZoneDialog(
     onDismiss: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
-    var type by remember { mutableStateOf(GrowZoneType.GREENHOUSE) }
-    var widthText by remember { mutableStateOf("100") }
-    var depthText by remember { mutableStateOf("100") }
-    var heightText by remember { mutableStateOf("") }
+    var type by rememberSaveable { mutableStateOf(GrowZoneType.GREENHOUSE) }
+    var widthText by rememberSaveable { mutableStateOf("100") }
+    var depthText by rememberSaveable { mutableStateOf("100") }
+    var heightText by rememberSaveable { mutableStateOf("") }
 
     val rejectionReason = nestingRejectionReason(parent = parentZone, allZones = allZones)
     val canSubmit =

@@ -5,7 +5,7 @@ a larger plant-tracking project. **Only build what's in the current phase unless
 explicitly asked otherwise.**
 
 ## Current phase
-Phase 3a (manual resize + sizing caps). Scope and exit criteria: `Docs/phases/phase_3/`.
+Phase 3a (manual resize + sizing caps). Scope and exit criteria: `Docs/phases/phase_3.md/`.
 
 ## Safety Rules
 - Never auto-commit. Show the diff and let me review before committing.
