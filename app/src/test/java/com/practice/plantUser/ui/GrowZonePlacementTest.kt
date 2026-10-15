@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.practice.plantUser.model.GrowZone
 import com.practice.plantUser.model.GrowZoneType
+import com.practice.plantUser.model.PositionCm
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -27,6 +28,7 @@ private fun zone(
     yCm = yCm
 )
 
+// This test seems obsolete , or could use stricter values?
 class AbsolutePositionCmTest {
     @Test
     fun `top-level zone's position is already absolute`() {
@@ -34,7 +36,26 @@ class AbsolutePositionCmTest {
 
         val result = absolutePositionCm(topLevel, listOf(topLevel))
 
-        assertEquals(Offset(10f, 20f), result)
+        assertEquals(PositionCm(10.0, 20.0), result)
+    }
+
+    @Test
+    fun absolutePositionCm_keepsDoublePrecision_acrossNestingLevels() {
+        val root = GrowZone(
+            id = 1, parentGrowZoneId = null, type = GrowZoneType.PLOT, name = "root",
+            widthCm = 100_000.0, depthCm = 100.0, heightCm = null, xCm = 90_000.3, yCm = 0.0
+        )
+        val child = GrowZone(
+            id = 2, parentGrowZoneId = 1, type = GrowZoneType.BOX, name = "child",
+            widthCm = 500.0, depthCm = 100.0, heightCm = null, xCm = 353.3, yCm = 0.0
+        )
+        val grandchild = GrowZone(
+            id = 3, parentGrowZoneId = 2, type = GrowZoneType.BOX, name = "grandchild",
+            widthCm = 50.0, depthCm = 50.0, heightCm = null, xCm = 0.1, yCm = 0.0
+        )
+        val position = absolutePositionCm(grandchild, listOf(root, child, grandchild))
+        val expected = 0.1 + 353.3 + 90_000.3 // summed in Double, the way the model should
+        assertEquals("ERROR", expected, position.xCm, 1e-9)
     }
 
     @Test
@@ -44,9 +65,10 @@ class AbsolutePositionCmTest {
 
         val result = absolutePositionCm(child, listOf(parent, child))
 
-        assertEquals(Offset(15f, 25f), result)
+        assertEquals(PositionCm(15.0, 25.0), result)
     }
 
+    // could this test benefit from stricter values?
     @Test
     fun `two levels of nesting sums both ancestors' offsets`() {
         // Greenhouse-in-greenhouse is the domain model's max nesting depth (2).
@@ -56,7 +78,7 @@ class AbsolutePositionCmTest {
 
         val result = absolutePositionCm(child, listOf(grandparent, parent, child))
 
-        assertEquals(Offset(15f, 15f), result)
+        assertEquals(PositionCm(15.0, 15.0), result)
     }
 }
 

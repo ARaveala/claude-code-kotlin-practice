@@ -254,7 +254,7 @@ private fun PannableZoomableGrid(
 
         for (zone in growZones) {
             val posCm = absolutePositionCm(zone, growZones)
-            val topLeftPx = posCm * cmToPx
+            val topLeftPx = Offset((posCm.xCm * cmToPx).toFloat(), (posCm.yCm * cmToPx).toFloat())
             val sizePx = Size(zone.widthCm.toFloat() * cmToPx, zone.depthCm.toFloat() * cmToPx)
             val color = growZoneColor(zone.type)
             drawRect(
