@@ -17,15 +17,20 @@ Build/tooling gotchas, as they come up.
   tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
   updates protobuf.
 
-- **Canvas allocates per frame while panning.** ~5 s of panning: ~25.8k `Stroke`
-  (new Stroke per drawRect in grid and zone loops) and ~26.5k `Offset` (likely boxed
-  in the List returned by visibleGridCellOrigins). Short-lived, but GC churn → stutter
-  risk on older phones. Fix: hoist Stroke out of the loops (remember), iterate grid
-  cells without a boxed list. Verify with a before/after allocation recording.
-  — Phase 5
+- **Canvas allocates per frame while panning (grid loop remains).** Zone loop fixed
+  2026-10-16: zone draw data is precomputed with `remember` (`DrawZone`) and the border
+  `Stroke` is hoisted, so a pan no longer allocates a `PositionCm`, `Stroke` or
+  parent-chain walk per zone per frame. Measured with 200 zones (3 runs, Profiler on):
+  Stroke/frame 311 -> 136, PositionCm/frame ~180 -> 0, janky 76% -> 53%,
+  p90 101 -> 65 ms. Still open: the grid loop allocates ~120 `Stroke` (one per cell,
+  inside `drawRect`) and ~120 `Offset` (boxed in the List returned by
+  `visibleGridCellOrigins`) per frame, regardless of zone count. Fix: hoist the grid
+  `Stroke` with `remember`, iterate cells without a boxed list. Also not done: every zone
+  is drawn even when off screen (viewport culling / dot mode), and 3a's 1 m cm-based grid
+  changes the cell count with zoom (grid level of detail, see phase_3.md open questions).
+  Verify with `Docs/manual_checks/m5_canvas_pan/`. — Phase 5
 
-- **AddGrowZone dialog box, on rotate does not resize for rotated screen**
-Width and depth are partially hidden, and height is not visible at all when screen is rotated to the side - Phase3
+- Add dependency in android studio quick fix, silently edited libs.versions.toml, causing build issues.
 
 # Potential Concerns
 
