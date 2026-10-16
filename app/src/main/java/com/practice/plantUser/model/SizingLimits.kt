@@ -1,15 +1,21 @@
 package com.practice.plantUser.model
 
-// model/SizingLimits.kt
+/*
+* hard caps: rejected with a named constant. NaN, infinite, zero and negative
+  input are always rejected.
+* */
 object SizingLimits {
     /** All values in cm. can these be separated into specifics, e,g GrowZones own */
+    // To prevent loosing GrowZones
     const val MIN_DIMENSION_CM = 1.0
+    // Check in with user "are you sure of this size", in case of fat finger input
     const val SOFT_WARN_WIDTH_DEPTH_CM = 5_000.0
     const val MAX_WIDTH_DEPTH_CM = 100_000.0
+    // heigh is not visual
     const val MAX_HEIGHT_CM = 1_000.0
 }
 
-/*
+/* testing method example to return usable values by error handler
 * sealed interface SizeCheck {
     data object Ok : SizeCheck
     data class NeedsConfirm(val valueCm: Double) : SizeCheck

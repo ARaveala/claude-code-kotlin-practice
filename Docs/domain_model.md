@@ -72,9 +72,9 @@ containment shows up then.
 ## Sizing Caps
 
 - Dimension caps exist to prevent overflow/rendering issues at extreme zoom and to catch fat-finger entry (e.g. a 5000cm box).
-- Exact cap values are TBD — determine via testing in Phase 3, not hardcoded assumptions yet.
-- Soft warnings for absurd sizes TBD.
+- Exact cap values for GrowZones are in app/src/main/java/com/practice/plantUser/model/SizingLimits.kt
 - Caps are a sanity ceiling, not a physical/weight simulation. Weight-based limits (e.g. "70kg full") are informational only, not a validation gate — soil density varies too much to enforce as a hard rule.
+- The grid is cm-based with 1 m (100 cm) cells so it works as a ruler.
 
 ## Rendering Rules (Level of Detail)
 
