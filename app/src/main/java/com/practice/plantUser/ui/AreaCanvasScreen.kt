@@ -93,6 +93,8 @@ private fun growZoneColor(type: GrowZoneType): Color = when (type) {
     GrowZoneType.WILD -> Color(0xFF64B5F6)
 }
 
+private class DrawZone(val topLeftPx: Offset, val sizePx: Size, val fillColor: Color, val borderColor: Color)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AreaCanvasScreen(
@@ -226,6 +228,19 @@ private fun PannableZoomableGrid(
     val currentOnTransformChange by rememberUpdatedState(onTransformChange)
     val currentOnTap by rememberUpdatedState(onTap)
 
+    val drawZones = remember(growZones, cmToPx) {
+        growZones.map { zone ->
+            val pos = absolutePositionCm(zone, growZones)
+            val color = growZoneColor(zone.type)
+            DrawZone(
+                topLeftPx = Offset((pos.xCm * cmToPx).toFloat(), (pos.yCm * cmToPx).toFloat()),
+                sizePx = Size((zone.widthCm * cmToPx).toFloat(), (zone.depthCm * cmToPx).toFloat()),
+                fillColor = color.copy(alpha = 0.3f),
+                borderColor = color
+            )
+        }
+    }
+    val zoneBorderStroke = remember(zoneBorderPx) { Stroke(width = zoneBorderPx) }
     Canvas(
         modifier =
         modifier
@@ -251,23 +266,12 @@ private fun PannableZoomableGrid(
                 style = Stroke(width = strokeWidthPx)
             )
         }
-
-        for (zone in growZones) {
-            val posCm = absolutePositionCm(zone, growZones)
-            val topLeftPx = Offset((posCm.xCm * cmToPx).toFloat(), (posCm.yCm * cmToPx).toFloat())
-            val sizePx = Size(zone.widthCm.toFloat() * cmToPx, zone.depthCm.toFloat() * cmToPx)
-            val color = growZoneColor(zone.type)
-            drawRect(
-                color = color.copy(alpha = 0.3f),
-                topLeft = topLeftPx * transform.scale + transform.translation,
-                size = sizePx * transform.scale
-            )
-            drawRect(
-                color = color,
-                topLeft = topLeftPx * transform.scale + transform.translation,
-                size = sizePx * transform.scale,
-                style = Stroke(width = zoneBorderPx)
-            )
+        for (i in drawZones.indices) {
+            val dz = drawZones[i]
+            val topLeft = dz.topLeftPx * transform.scale + transform.translation
+            val size = dz.sizePx * transform.scale
+            drawRect(color = dz.fillColor, topLeft = topLeft, size = size)
+            drawRect(color = dz.borderColor, topLeft = topLeft, size = size, style = zoneBorderStroke)
         }
     }
 }
