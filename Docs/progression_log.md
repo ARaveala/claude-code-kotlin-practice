@@ -123,3 +123,35 @@ Gotcha: the Gradle
 - Simplified CLAUDE.md. The documentation is growing and every always-loaded line costs
   tokens. I also want to keep learning Kotlin myself: Claude makes some fundamental
   mistakes I can already spot as a beginner, so I'm keeping the review habit.
+
+**Phase 3a prep**
+- Planned 3a with Claude before restarting Claude Code. Settled the cap design: min 1 cm,
+  hard max 100,000 cm for width/depth and 1,000 cm for height, soft warning (non-blocking,Accept/Cancel) above 5,000 cm, all in one SizingLimits file; grid becomes 1 m cells.
+  A size cap protects against bad numbers, not the phone: draw cost depends on what is on
+  screen, so the zoom clamp and grid level of detail matter more (open questions in the phase file).
+- Interaction redesign: tap now selects a zone and shows a non-modal action bar (Enter, Edit
+  size); the edit panel is an inline panel with a live ghost preview, canvas state rather than
+  a Nav3 destination. Rotation resets focus and transform together for now (provisional,
+  feel-test on a device).
+- Rewrote phase_3.md (scope, decided, out of scope, open questions, exit criteria) and wrote
+  the matching patches for domain_model, decisions, known_issues and manual_checks.
+- Test-first fix: the add-GrowZone dialog's type/width/depth/height used `remember`, not
+  `rememberSaveable`. Wrote a restore test, saw it fail for the intended reason, fixed it.
+  Restore tests now collect post-restore failures in a list and throw one summary
+  (ErrorCollector was dropped: the HTML report only keeps one failure per test).
+- Incident: Android Studio's "Add dependency" quick-fix silently edited libs.versions.
+   toml and build.gradle.kts (pinned ui-test, Espresso 3.7.0), which broke androidTest resolution (consistent resolution wanted 3.5.0). Found via Local History, reverted. Lesson: decline that quick-fix; dependency changes are deliberate commits.
+
+**Float to Double fix (2026-10-15)**
+- Wrote a precision test first: three nested zones at 90,000.3 / 353.3 / 0.1 cm. It failed
+  with 90353.6953125 instead of 90353.7, so absolutePositionCm was losing ~0.005 cm in Float.
+- Fixed absolutePositionCm (returns PositionCm, sums in Double), hitTestZone (compares in
+  Double) and fitTransform and the draw loop (convert to Float once, after the multiply).
+  Float is only for pixel space; the model, data and viewmodel stay Double.
+- Float round trip is a correctness issue, not a visual one. Double vs Float costs
+  almost nothing in speed or memory; per-frame allocation is what matters.
+- Recorded M5 (scripted adb swipe loop, gfxinfo, Profiler allocations), three runs per state.
+  Baseline vs PositionCm: Stroke and Offset ~120 per frame each in both (from the grid loop, not the zones); timing unchanged within noise; PositionCm adds ~4 per frame at ~4 zones.
+- Decision: the draw loop must be sized for hundreds of zones (custom zones, many small
+  ones). The per frame PositionCm allocation, the parent-chain walk and a Stroke per zone all scale with zone count, precompute (remember a DrawZone list) hoisted. Grid loop allocation stays a Phase 5 item.
+- Huge docs refactoring again, must find a way to lower documentation level , this is too much.

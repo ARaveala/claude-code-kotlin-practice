@@ -51,7 +51,7 @@ Dev emulator only. Never run `connectedAndroidTest` there (it wipes the data).
 1. Build and install the code state to measure (Run from Android Studio, or
    `adb install -r <apk>` to swap prebuilt APKs; the data survives).
 2. Open the stress Area so the canvas is on screen.
-3. `./m5_run.sh <label> 200` (label like `positioncm.1`). It does the warm-up pan,
+3. `./drawTest.sh <label> 200` (label like `positioncm.1`). It does the warm-up pan,
    resets the frame counters, runs the measured pan and appends a row to
    `~/m5_results/m5.csv`.
 4. Repeat three times per state and take the median.

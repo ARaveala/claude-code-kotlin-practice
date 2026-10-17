@@ -11,12 +11,19 @@ open area B → back.
 **Deeper check:** Profiler → Heap Dump (after the steps above) → filter
 `GrowZoneViewModel` → count is 0.
 
-### M2 — Dialogs survive a real rotation
-**Run when:** touching dialog state or rememberSaveable usage.
+### M2 — Dialogs and the edit panel survive a real rotation
+**Run when:** touching dialog or panel state, or `rememberSaveable` usage.
 **Why manual:** StateRestorationTester can give a false pass for dialogs (see known_issues).
-**Steps:** open the add-area dialog, type a name, rotate the emulator. Repeat for the
-add-GrowZone dialog on the canvas.
-**Expected:** dialog still open, typed text kept, measurement dialog.
+**Steps:**
+1. Add-area dialog: type a name, rotate the emulator.
+2. Add-GrowZone dialog on the canvas: pick a non-default type, type a name, width, depth
+   and height, rotate.
+3. Edit-size panel (3a): select a zone, open Edit size, type a width and depth, rotate.
+   Repeat with a value above the soft warning threshold so the confirmation is showing.
+**Expected:** each dialog or panel is still open with its typed text and chosen type; the
+edit panel still targets the same zone and the ghost preview is still drawn; the selection
+is kept. Canvas zoom and zone focus reset on rotation (decisions.md, provisional).
+This can be removed once false pass is figured out
 
 ### M3 — Restore after process death
 **Steps:** open a canvas → press Home (app must be in background) →
@@ -37,3 +44,13 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** no per-frame allocation of objects that could be created once
 (compare counts to the previous recording noted here).
 **Last recorded:** Stroke ~25.8k, Offset ~26.5k per 5 s (before Phase 5 fixes).
+
+### M6 — Panning and pinching don't select
+**Run when:** touching canvas gestures, hit-testing, or the action bar.
+**Why manual:** emulator touch injection is jittery (see known_issues); use a real device
+once one is available.
+**Steps:** start a one-finger pan with the finger on top of a zone; start a pinch with a
+finger on a zone; tap a zone; tap empty canvas; with a zone selected, pan and zoom.
+**Expected:** pan and pinch never select a zone or show the bar; a tap selects and shows
+the bar; a tap on empty canvas clears it; selection and bar survive pan and zoom; the bar
+doesn't block canvas gestures outside its own bounds.

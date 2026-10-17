@@ -18,7 +18,7 @@ Build/tooling gotchas, as they come up.
   updates protobuf.
 
 - **Canvas allocates per frame while panning (grid loop remains).** Zone loop fixed
-  2026-10-16: zone draw data is precomputed with `remember` (`DrawZone`) and the border
+  zone draw data is precomputed with `remember` (`DrawZone`) and the border
   `Stroke` is hoisted, so a pan no longer allocates a `PositionCm`, `Stroke` or
   parent-chain walk per zone per frame. Measured with 200 zones (3 runs, Profiler on):
   Stroke/frame 311 -> 136, PositionCm/frame ~180 -> 0, janky 76% -> 53%,
@@ -26,9 +26,8 @@ Build/tooling gotchas, as they come up.
   inside `drawRect`) and ~120 `Offset` (boxed in the List returned by
   `visibleGridCellOrigins`) per frame, regardless of zone count. Fix: hoist the grid
   `Stroke` with `remember`, iterate cells without a boxed list. Also not done: every zone
-  is drawn even when off screen (viewport culling / dot mode), and 3a's 1 m cm-based grid
-  changes the cell count with zoom (grid level of detail, see phase_3.md open questions).
-  Verify with `Docs/manual_checks/m5_canvas_pan/`. — Phase 5
+  is drawn even when off screen (viewport culling / dot mode), new implementation of scale based grid may help also.
+  Verify with `Docs/manual_checks/canvas_benchmark/`. — Phase 5
 
 - Add dependency in android studio quick fix, silently edited libs.versions.toml, causing build issues.
 
@@ -41,13 +40,6 @@ bugs, nothing needs fixing now.
   router is gone (Nav3). As more DAOs/ViewModels appear, consider a small AppContainer
   created once in an Application subclass instead of building dependencies inline.
   — when a third DAO arrives
-
-- **Grid spacing (`GRID_SPACING` in `AreaCanvasScreen.kt`) has no real world cm anchor yet.** 
-  Phase 3's scale to cm resize work will
-  need to define one; the grid should likely switch to being cm based
-  at that point so it functions as an actual ruler, not just a zoom
-  indicator.
-  — Phase 3a
 
 - **Canvas pan/zoom (`CanvasTransform`) resets on navigating away and back.**
   Currently unavoidable, it's local `remember` state. Worth
@@ -108,12 +100,6 @@ bugs, nothing needs fixing now.
   GrowZoneViewModel (`android.util.Log`: needs a logger wrapper),
   Habit: keep `android.*` and `Context` out of shared logic, and pass platform
   objects in from MainActivity. Model/ is already plain Kotlin.
-
-
-- **Zone focus is lost on rotation.** `focusedZoneId` and `transform` are plain
-  `remember`. They must be saved together or the UI shows "inside a zone" at default
-  zoom. Likely approach: save `focusedZoneId`, recompute the zoom with `fitTransform`
-  once the canvas is measured (doesn't decide the Phase 5 "persist pan/zoom" question).
 
 - **`StateRestorationTester` is an emulation of rotation.** It rebuilds the composition
   in the same Activity. Dialog windows can linger briefly and give a false pass. The

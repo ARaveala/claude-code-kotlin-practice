@@ -16,3 +16,5 @@ rather then recreate new every time.
 - gain a better understanding how to write this type of code, that uses a garbage collector, things must have no referencing to be removed from heap
 - Find a way to automatically test clean up
 - Refactor android tests, collectFailures() used by all and helper functions
+- when zoned in to zone, add a visable name showing who we are inside
+- Second managed device at minSdk
