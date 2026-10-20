@@ -49,6 +49,7 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Run when:** touching canvas gestures, hit-testing, or the action bar.
 **Why manual:** emulator touch injection is jittery (see known_issues); use a real device
 once one is available.
+**Status:** passes on the emulator (2026-10-20, Phase 3a); real device not tested yet.
 **Steps:** start a one-finger pan with the finger on top of a zone; start a pinch with a
 finger on a zone; tap a zone; tap empty canvas; with a zone selected, pan and zoom.
 **Expected:** pan and pinch never select a zone or show the bar; a tap selects and shows

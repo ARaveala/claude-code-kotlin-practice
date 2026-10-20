@@ -60,6 +60,11 @@ bugs, nothing needs fixing now.
   revisiting once there's placed content (clamp like Miro/draw.io do).
   — Phase 3d/phase3c
 
+- **Quick focus from the name box breadcrumb.** 3a's breadcrumb only selects a zone.
+  Tapping a breadcrumb entry could also focus (enter) that zone directly, a quick way back up
+  the chain. Decide the gesture (tap selected entry again, or long-press) once 3a is in use.
+  — after Phase 3a
+
 - **naming conventions**
   If Area names or type names are the same, this may affect user experince and
   any search features we may add. Decide on naming convention rules.

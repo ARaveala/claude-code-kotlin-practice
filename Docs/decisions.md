@@ -21,6 +21,7 @@ crashes at runtime.
 level is the separate on-canvas button only.
 **Why:** prefer an explicit zoom-out control; zooming isn't treated as navigation.
 **Revisit if:** users expect back to zoom out (then: `BackHandler(enabled = focusedZoneId != null)`).
+**Superseded 2026-10-17:** see "System back clears, then zooms out one level".
 
 ### 2026-10-01 — Layered packages, root package assembles the app
 **Decision:** ui → viewmodel → data → model, downward only; `model/` is plain Kotlin.
@@ -108,3 +109,15 @@ together. `selectedZoneId`, the panel's zone id and its draft use `rememberSavea
 long-press is reserved for 3c drag-move; separate windows cover the canvas.
 **Revisit if:** entering feels slow (then: tap on a selected zone enters), or re-finding the
 zone after rotation is annoying (then: save focus, recompute with `fitTransform`).
+
+### 2026-10-17 — System back clears, then zooms out one level (provisional)
+**Decision:** System back, in order: if a zone is selected or the edit panel is open, clear
+all of it (selection, panel, draft) and stop. Otherwise, if focused inside a zone, zoom out
+one nesting level. At the Area's top level, leave the Area. The toolbar's top-left arrow does
+exactly the same (one shared `navigateBack`, fixed 2026-10-20: it used to leave the Area
+directly). Matches the on-canvas zoom-out button. Supersedes "System back on the canvas leaves
+the Area" (2026-10-01).
+**Why:** the code already zoomed out per level; clearing first means back never discards a
+zoom level while the user is mid-edit.
+**Revisit if:** the device feel test shows per-level back is slow from deep nesting (then:
+jump straight to the Area's top level).

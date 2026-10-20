@@ -1,5 +1,8 @@
 - [ ] **Phase 3a — Manual resize + sizing caps**
-- **Name box** name box on top left next to back button, so we can see what growzone is selected.
+- **Name box** name box on top left next to back button: breadcrumb of the full path, parent to
+  child, to the selected zone (or to the focused zone when nothing is selected), e.g.
+  Area › House1 › Nested. Each name is clickable and selects that zone; the selected one is
+  highlighted. Selecting only, focusing from the breadcrumb is later (known_issues).
 - **Action bar rules.** Non-modal: no scrim, consumes no touches outside its
   own bounds. Selection survives pan and zoom. Panning must never select a
   zone. Hit-testing ignores the currently focused zone (only its children and
@@ -11,8 +14,9 @@
 - **Edit size panel.** Inline panel anchored at the bottom (side in landscape),
    part of the canvas composition. Canvas state, not a Nav3 destination and not a dialog
    (reasons: decisions.md, "GrowZone interaction is canvas state").
-   Contents are measurements only: width, depth, height (height nullable, plot/box only).
+   Contents are measurements only: width, depth, height (height nullable, every type: the user decides how to use it).
    The soft warning confirmation (Accept / Cancel) is shown inside the panel, not as a separate window.
+  Every input with width/depth (create dialog and edit panel) shows the same soft warning.
 - **Live ghost preview.** While typing, the new width x depth is drawn as a
   ghost outline over the zone, only when the parsed value is valid. Nothing is
   applied until confirm; cancel discards the draft. The top-left corner stays
