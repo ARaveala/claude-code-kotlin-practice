@@ -27,16 +27,60 @@ fun absolutePositionCm(zone: GrowZone, allZones: List<GrowZone>): PositionCm {
 /**
  * The smallest (innermost) zone whose absolute bounds contain [pointCm], or null if none. Smallest
  * wins so tapping inside a nested child selects the child, not the parent zone it sits inside.
+ * [focusedZoneId] is the zone the canvas is zoomed into (null at Area level); it never responds.
+ * Inside the focused zone only its descendants respond, so empty space there is null even though
+ * its ancestors (or an overlapping unrelated zone) also contain the point. Equal areas: first wins.
  */
-fun hitTestZone(zones: List<GrowZone>, pointCm: Offset): GrowZone? {
+fun hitTestZone(zones: List<GrowZone>, pointCm: Offset, focusedZoneId: Long?): GrowZone? {
     val px = pointCm.x.toDouble()
     val py = pointCm.y.toDouble()
-    return zones
-        .filter { zone ->
-            val pos = absolutePositionCm(zone, zones)
-            px in pos.xCm..(pos.xCm + zone.widthCm) &&
-                py in pos.yCm..(pos.yCm + zone.depthCm)
-        }.minByOrNull { it.widthCm * it.depthCm }
+    val focused = zones.firstOrNull { it.id == focusedZoneId }
+    val insideFocused = focused != null && containsPointCm(focused, zones, px, py)
+
+    // One pass, no filtered list. Still allocates one PositionCm per zone checked (absolutePositionCm),
+    // fine per tap, not something to call per frame.
+    var best: GrowZone? = null
+    var bestAreaCm2 = Double.POSITIVE_INFINITY
+    for (i in zones.indices) {
+        val zone = zones[i]
+        if (zone.id == focusedZoneId) continue
+        if (insideFocused && !isDescendantOf(zone, focusedZoneId, zones)) continue
+        if (!containsPointCm(zone, zones, px, py)) continue
+        val areaCm2 = zone.widthCm * zone.depthCm
+        if (areaCm2 < bestAreaCm2) {
+            best = zone
+            bestAreaCm2 = areaCm2
+        }
+    }
+    return best
+}
+
+private fun containsPointCm(zone: GrowZone, allZones: List<GrowZone>, px: Double, py: Double): Boolean {
+    val pos = absolutePositionCm(zone, allZones)
+    return px in pos.xCm..(pos.xCm + zone.widthCm) && py in pos.yCm..(pos.yCm + zone.depthCm)
+}
+
+/** Whether [ancestorId] appears anywhere up [zone]'s parent chain (a zone is not its own descendant). */
+private fun isDescendantOf(zone: GrowZone, ancestorId: Long?, allZones: List<GrowZone>): Boolean {
+    var parentId = zone.parentGrowZoneId
+    while (parentId != null) {
+        if (parentId == ancestorId) return true
+        parentId = allZones.firstOrNull { it.id == parentId }?.parentGrowZoneId
+    }
+    return false
+}
+
+/** [zoneId]'s nesting chain, root first and ending with the zone itself; empty if not found. */
+fun zoneChain(zones: List<GrowZone>, zoneId: Long?): List<GrowZone> {
+    val chain = ArrayList<GrowZone>()
+    var current = zones.firstOrNull { it.id == zoneId }
+    while (current != null) {
+        chain.add(current)
+        val parentId = current.parentGrowZoneId ?: break
+        current = zones.firstOrNull { it.id == parentId }
+    }
+    chain.reverse()
+    return chain
 }
 
 /**

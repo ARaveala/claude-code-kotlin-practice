@@ -21,18 +21,27 @@ object GrowZoneLimits {
 // placeholder
 object OtherLimits
 
-/* testing method example to return usable values by error handler
-* sealed interface SizeCheck {
-    data object Ok : SizeCheck
-    data class NeedsConfirm(val valueCm: Double) : SizeCheck
-    data class Rejected(val reason: String) : SizeCheck
+/** Why [valueCm] can't be a GrowZone width or depth, or null if it's fine. Shared by the create
+ * dialog and the edit panel. A value above the soft warning is still valid, see [needsSizeConfirm]. */
+fun widthDepthRejectionReason(valueCm: Double): String? = when {
+    // Must come first: every comparison with NaN is false, so it would slip past the range checks.
+    !valueCm.isFinite() -> ValidationMessages.SIZE_NOT_A_NUMBER
+    valueCm < GrowZoneLimits.MIN_DIMENSION_CM -> ValidationMessages.SIZING_BELOW_MINIMUM
+    valueCm > GrowZoneLimits.MAX_WIDTH_DEPTH_CM -> ValidationMessages.SIZING_CAP_EXCEEDED
+    else -> null
 }
 
-fun checkWidthDepthCm(valueCm: Double): SizeCheck = when {
-    valueCm.isNaN() || valueCm.isInfinite() -> SizeCheck.Rejected(SIZE_NOT_A_NUMBER)
-    valueCm < SizingLimits.MIN_DIMENSION_CM -> SizeCheck.Rejected(SIZING_BELOW_MINIMUM)
-    valueCm > SizingLimits.MAX_WIDTH_DEPTH_CM -> SizeCheck.Rejected(SIZING_CAP_EXCEEDED)
-    valueCm > SizingLimits.SOFT_WARN_WIDTH_DEPTH_CM -> SizeCheck.NeedsConfirm(valueCm)
-    else -> SizeCheck.Ok
+/** Why [valueCm] can't be a GrowZone height, or null if it's fine. Null input means no height was
+ * entered, which is allowed (height is optional for every type). */
+fun heightRejectionReason(valueCm: Double?): String? = when {
+    valueCm == null -> null
+    !valueCm.isFinite() -> ValidationMessages.SIZE_NOT_A_NUMBER
+    valueCm < GrowZoneLimits.MIN_DIMENSION_CM -> ValidationMessages.SIZING_BELOW_MINIMUM
+    valueCm > GrowZoneLimits.MAX_HEIGHT_CM -> ValidationMessages.SIZING_HEIGHT_CAP_EXCEEDED
+    else -> null
 }
-* */
+
+/** Whether a valid width or depth is large enough to ask "is that correct?" (fat finger check).
+ * Awareness only, never a rejection: false for anything [widthDepthRejectionReason] rejects. */
+fun needsSizeConfirm(valueCm: Double): Boolean =
+    valueCm > GrowZoneLimits.SOFT_WARN_WIDTH_DEPTH_CM && valueCm <= GrowZoneLimits.MAX_WIDTH_DEPTH_CM

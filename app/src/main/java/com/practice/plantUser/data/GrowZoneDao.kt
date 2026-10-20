@@ -15,4 +15,9 @@ interface GrowZoneDao {
     // child order too. Rendering relies on this to draw parents before children.
     @Query("SELECT * FROM grow_zones WHERE areaId = :areaId ORDER BY id ASC")
     fun getByArea(areaId: Long): Flow<List<GrowZoneEntity>>
+
+    // Targeted UPDATE, not @Update(entity): writes only the size columns, so a stale entity copy
+    // can never overwrite position or boundsEnforced. Returns rows changed (0 = no such zone).
+    @Query("UPDATE grow_zones SET widthCm = :widthCm, depthCm = :depthCm, heightCm = :heightCm WHERE id = :id")
+    suspend fun updateSize(id: Long, widthCm: Double, depthCm: Double, heightCm: Double?): Int
 }

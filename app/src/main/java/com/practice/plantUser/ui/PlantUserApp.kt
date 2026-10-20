@@ -65,6 +65,7 @@ fun PlantUserApp(areaDao: AreaDao, growZoneDao: GrowZoneDao) {
                         area = area,
                         growZones = growZones,
                         onAddGrowZone = growZoneViewModel::addGrowZone,
+                        onResizeGrowZone = growZoneViewModel::resizeGrowZone,
                         onBack = { backStack.removeLastOrNull() },
                         modifier = Modifier.fillMaxSize()
                     )
