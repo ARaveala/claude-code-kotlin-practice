@@ -1,4 +1,4 @@
-- [ ] **Phase 3a — Manual resize + sizing caps**
+- [x] **Phase 3a — Manual resize + sizing caps**
 - **Name box** name box on top left next to back button: breadcrumb of the full path, parent to
   child, to the selected zone (or to the focused zone when nothing is selected), e.g.
   Area › House1 › Nested. Each name is clickable and selects that zone; the selected one is

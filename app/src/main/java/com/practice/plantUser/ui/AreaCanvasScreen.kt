@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -521,7 +523,9 @@ private fun AddGrowZoneDialog(
         onDismissRequest = onDismiss,
         title = { Text("New GrowZone") },
         text = {
-            Column {
+            // Scrollable: in landscape the text slot is shorter than the fields, and without a scroll
+            // the Column squeezes the last ones to nothing (known_issues.md, fixed 2026-10-20).
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 TextField(
                     value = name,
                     onValueChange = { input -> name = coerceNameInput(name, input, MAX_GROW_ZONE_NAME_LENGTH) },
