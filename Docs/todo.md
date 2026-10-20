@@ -16,5 +16,14 @@ rather then recreate new every time.
 - gain a better understanding how to write this type of code, that uses a garbage collector, things must have no referencing to be removed from heap
 - Find a way to automatically test clean up
 - Refactor android tests, collectFailures() used by all and helper functions
-- when zoned in to zone, add a visable name showing who we are inside
+- when zoned in to zone, add a visible name showing who we are inside
 - Second managed device at minSdk
+- Check with real users, is the edit/enter panel at the bottom, when selecting zone visible enough, alternatively it could be added to left side with a bit of color
+- In-app help/demo (own phase, after Phase 4 at the earliest):
+  skippable first launch welcome + "?" button listing named stages
+  (area list, create area, enter area, add GrowZone, nesting vs
+  overlap, conditions*, pots/holes card*, custom zones*).
+  *only once the feature exists. Help text lives in strings.xml as the
+  single source; domain_model.md links to it rather than duplicating.
+  Idea: each phase adds its own stage as part of its exit criteria.
+  Check GIF vs static screenshots for APK size and upkeep. Each how to is its own small demo.

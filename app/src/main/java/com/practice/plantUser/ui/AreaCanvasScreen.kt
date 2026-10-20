@@ -62,18 +62,17 @@ import com.practice.plantUser.ui.theme.PlantUserTheme
 
 private const val TAG = "AreaCanvasScreen"
 
-// Placeholders — real caps are a Phase 3 "Sizing Caps" deliverable (domain_model.md), determined
-// by testing, not hardcoded assumptions. Note: at MIN_SCALE the grid draws ~3,700 cells/frame on a
-// typical phone screen (measured on this emulator); roadmap.md Phase 5 already plans LOD/dot mode
-// rendering at extreme zoom out to address this, so it's not being solved here.
+// Zoom range placeholders: Phase 3e derives MIN_SCALE from MAX_WIDTH_DEPTH_CM (model/SizingLimits.kt).
+// Note: at MIN_SCALE the grid draws ~3,700 cells/frame on a typical phone screen (measured on this
+// emulator); 3e's adaptive grid bounds that, and Phase 5 plans LOD/dot mode for extreme zoom out.
 private const val MIN_SCALE = 0.2f
 private const val MAX_SCALE = 5f
 private val GRID_SPACING = 50.dp
 private val GRID_LINE_WIDTH = 1.dp
 private val GRID_COLOR = Color(0xFFDDDDDD)
 
-// No real-world cm anchor yet (known_issues.md) — Phase 3 defines the actual scale. 1dp/cm is a
-// throwaway placeholder purely so zones render at roughly correct proportions relative to each other.
+// 1dp/cm placeholder so zones render at correct proportions relative to each other; the on-screen
+// scale (grid step, scale bar) is Phase 3e.
 private val CM_TO_DP = 1.dp
 private val ZONE_BORDER_WIDTH = 2.dp
 private val SELECTED_BORDER_WIDTH = 4.dp
@@ -85,11 +84,6 @@ private val DEFAULT_TRANSFORM = CanvasTransform(scale = 1f, translation = Offset
 
 /** Test tag for the raw Canvas, which has no other semantics to find it by (instrumented tests tap it). */
 const val AREA_CANVAS_TEST_TAG = "areaCanvas"
-
-/** Gates a dimension TextField's input to digits and at most one decimal point, letting the
- * user type a partial value (e.g. "12.") without rejecting it outright. */
-fun coerceDimensionInput(current: String, candidate: String): String =
-    if (candidate.isEmpty() || candidate.matches(Regex("^\\d*\\.?\\d*$"))) candidate else current
 
 private fun growZoneColor(type: GrowZoneType): Color = when (type) {
     GrowZoneType.GREENHOUSE -> Color(0xFF81C784)
@@ -432,6 +426,7 @@ private fun PannableZoomableGrid(
     // Strokes (and the ghost's dash PathEffect) built once, not per frame (known_issues).
     val zoneBorderStroke = remember(zoneBorderPx) { Stroke(width = zoneBorderPx) }
     val selectedStroke = remember(selectedBorderPx) { Stroke(width = selectedBorderPx) }
+    val gridStroke = remember(strokeWidthPx) { Stroke(width = strokeWidthPx) }
     val ghostStroke = remember(zoneBorderPx, ghostDashPx) {
         Stroke(width = zoneBorderPx, pathEffect = PathEffect.dashPathEffect(floatArrayOf(ghostDashPx, ghostDashPx)))
     }
@@ -458,7 +453,7 @@ private fun PannableZoomableGrid(
                 color = GRID_COLOR,
                 topLeft = worldOrigin * transform.scale + transform.translation,
                 size = cellSize,
-                style = Stroke(width = strokeWidthPx)
+                style = gridStroke
             )
         }
         for (i in drawZones.indices) {

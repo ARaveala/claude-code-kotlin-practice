@@ -63,6 +63,15 @@ fun checkSizeInput(widthText: String, depthText: String, heightText: String): Si
     return SizeInput(widthCm, depthCm, heightCm, widthError, depthError, heightError, isValid, softWarnValueCm)
 }
 
+// Compiled once at class load; building it inside coerceDimensionInput allocated a Regex + Pattern
+// per keystroke.
+private val DIMENSION_INPUT_REGEX = Regex("^\\d*\\.?\\d*$")
+
+/** Gates a dimension TextField's input to digits and at most one decimal point, letting the
+ * user type a partial value (e.g. "12.") without rejecting it outright. */
+fun coerceDimensionInput(current: String, candidate: String): String =
+    if (candidate.isEmpty() || candidate.matches(DIMENSION_INPUT_REGEX)) candidate else current
+
 /** Width, depth and optional height fields, each showing its rejection message under it. */
 @Composable
 fun SizeFields(

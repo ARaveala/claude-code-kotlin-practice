@@ -43,7 +43,9 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Steps:** Profiler → record Java/Kotlin allocations → pan for ~5 s → sort by count.
 **Expected:** no per-frame allocation of objects that could be created once
 (compare counts to the previous recording noted here).
-**Last recorded:** Stroke ~25.8k, Offset ~26.5k per 5 s (before Phase 5 fixes).
+**Last recorded (2026-10-20, 200 zones, Profiler on, median of 3, per frame):** Stroke 0
+(was ~259 before the grid Stroke hoist), Offset ~264 (grid cell list, open until 3e).
+Details: `canvas_benchmark/how_to.md`.
 
 ### M6 — Panning and pinching don't select
 **Run when:** touching canvas gestures, hit-testing, or the action bar.

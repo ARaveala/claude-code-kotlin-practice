@@ -72,3 +72,14 @@ Dev emulator only. Never run `connectedAndroidTest` there (it wipes the data).
 Without precompute vs with precompute (median of 3): Stroke/frame 311 vs 136,
 PositionCm/frame ~180 vs 0, janky 76% vs 53%, p50 65 vs 48 ms, p90 101 vs 65 ms.
 With 4 zones the same change was within noise.
+
+## Last recorded (Profiler on, 200 zones, 2026-10-20)
+Grid `Stroke` hoisted, before vs after (median of 3): Stroke/frame 259 vs 0,
+Offset/frame 265 vs 264 (unchanged, grid cell list), janky 49% vs 57%, p50 32 vs 40 ms,
+p90 48 vs 65 ms. Timing is within the run-to-run spread (before alone: 41-64% janky)
+and Profiler-on timing isn't comparable anyway; the allocation drop is the result.
+
+## Last recorded (Profiler off, 200 zones, 2026-10-20)
+After the grid `Stroke` hoist only (no Profiler-off run of the before build), median of 3:
+frames 172, janky 71% (59-73%), p50 16 ms, p90 32 ms, p99 57 ms, slow UI thread 21.
+Baseline for the next timing comparison (Phase 3e grid), not a before/after result.

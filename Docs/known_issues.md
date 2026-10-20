@@ -17,15 +17,15 @@ Build/tooling gotchas, as they come up.
   tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
   updates protobuf.
 
-- **Canvas allocates per frame while panning (grid loop remains).** Zone loop fixed
+- **Canvas allocates per frame while panning (grid cell Offsets remain).** Zone loop fixed
   zone draw data is precomputed with `remember` (`DrawZone`) and the border
   `Stroke` is hoisted, so a pan no longer allocates a `PositionCm`, `Stroke` or
   parent-chain walk per zone per frame. Measured with 200 zones (3 runs, Profiler on):
   Stroke/frame 311 -> 136, PositionCm/frame ~180 -> 0, janky 76% -> 53%,
-  p90 101 -> 65 ms. Still open: the grid loop allocates ~120 `Stroke` (one per cell,
-  inside `drawRect`) and ~120 `Offset` (boxed in the List returned by
-  `visibleGridCellOrigins`) per frame, regardless of zone count. Fix: hoist the grid
-  `Stroke` with `remember`, iterate cells without a boxed list. Also not done: every zone
+  p90 101 -> 65 ms. Grid `Stroke` hoisted 2026-10-20: Stroke/frame ~259 -> 0 (Profiler on,
+  3 runs; timing not compared, Profiler-off baseline in canvas_benchmark/how_to.md). Still open: ~260 `Offset`/frame at the benchmark zoom
+  (boxed in the List returned by `visibleGridCellOrigins`, one per cell), regardless of
+  zone count. Fix: iterate cells without a boxed list (Phase 3e grid as lines). Also not done: every zone
   is drawn even when off screen (viewport culling / dot mode), new implementation of scale based grid may help also.
   Verify with `Docs/manual_checks/canvas_benchmark/`. — Phase 5
 
