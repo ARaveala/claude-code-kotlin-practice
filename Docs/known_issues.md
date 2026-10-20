@@ -65,6 +65,21 @@ bugs, nothing needs fixing now.
   the chain. Decide the gesture (tap selected entry again, or long-press) once 3a is in use.
   — after Phase 3a
 
+- **Size draft state is duplicated between the edit panel and the create dialog.** Each
+  holds three texts + a warning value in `rememberSaveable`, each field's change lambda
+  clears the warning, and the "show soft warning or confirm" branch is written twice
+  (`saveEdit` and the dialog's Create button). 3b's drag resize writes into the same draft
+  and its exit criterion is drag == typed entry, so a shared draft holder would make that one
+  path. Cost: a custom `Saver` to keep it saveable.
+  — Phase 3b
+
+- **The grid recomposes on every pan frame.** `transform` is read during composition (in
+  `AreaCanvasScreen`'s `BoxWithConstraints` content), so each pan frame recomposes
+  `PannableZoomableGrid` instead of only redrawing. Fix: defer the read to the draw phase
+  (pass `() -> CanvasTransform` or the `State`). Check recomposition counts in Layout
+  Inspector first; compare with the Profiler-off baseline in canvas_benchmark/how_to.md.
+  — Phase 3e
+
 - **naming conventions**
   If Area names or type names are the same, this may affect user experince and
   any search features we may add. Decide on naming convention rules.
