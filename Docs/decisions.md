@@ -67,6 +67,8 @@ reserved for 3c drag-move.
 clears it; focused zone ignores taps; panning never selects.
 **Revisit if:** entering feels slow (then: tapping an already-selected zone
 enters it). Gesture handler only calls `onZoneTapped`, so this is one handler.
+**Partly superseded 2026-10-20:** no lock in 3c and long-press is no longer reserved; the bar
+gains a Move button instead (see "Move is an explicit panel").
 
 ### 2026-10-14 — Edit size is an inline panel, canvas state, not navigation
 **Decision:** inline non-modal panel with live ghost preview, no Nav3
@@ -74,6 +76,8 @@ destination, no `AlertDialog`/`ModalBottomSheet`. Top-left corner stays fixed
 when the size changes. Contents are measurements only for now.
 **Why:** the user must see the zone next to other objects while typing;
 separate windows cover the canvas and cause lingering-window false passes.
+**Partly superseded 2026-10-20:** top-left is now only the default anchor; from 3b the selected
+handle sets it (see "A resize handle sets the anchor").
 
 ### 2026-10-14 — Rotation resets focus and transform together (provisional)
 **Decision:** `focusedZoneId` and `transform` stay plain `remember` and reset
@@ -109,6 +113,8 @@ together. `selectedZoneId`, the panel's zone id and its draft use `rememberSavea
 long-press is reserved for 3c drag-move; separate windows cover the canvas.
 **Revisit if:** entering feels slow (then: tap on a selected zone enters), or re-finding the
 zone after rotation is annoying (then: save focus, recompute with `fitTransform`).
+**Partly superseded 2026-10-20:** the bar gains Move instead of a lock, long-press is no longer
+reserved for drag-move, and top-left is only the default resize anchor (entries below).
 
 ### 2026-10-17 — System back clears, then zooms out one level (provisional)
 **Decision:** System back, in order: if a zone is selected or the edit panel is open, clear
@@ -121,3 +127,72 @@ the Area" (2026-10-01).
 zoom level while the user is mid-edit.
 **Revisit if:** the device feel test shows per-level back is slow from deep nesting (then:
 jump straight to the Area's top level).
+
+### 2026-10-20 — Phase 3 order: 3b, 3e, 3c, 3d
+**Decision:** build 3b (drag resize), then 3e (canvas scale), then 3c (move), then 3d (collision).
+**Why:** 3e depends only on 3a. Real-device testing starts in 3b; doing 3e next means 3c's move is
+felt and measured on the cleaned-up canvas (grid allocations, per-frame recomposition), and
+`MIN_SCALE` changes before more gesture code builds on it.
+**Revisit if:** 3b decides drag snaps to the grid step (then 3e goes first).
+
+### 2026-10-20 — Move is an explicit panel; GrowZone has no position_locked
+**Decision:** a Move button in the action bar opens an inline panel (Done / Cancel) with a ghost
+and a move handle; nothing applies until Done. Panning always pans. GrowZone gets no
+`position_locked` (never added to the schema); PlacedItem keeps its own, decided in Phase 4.
+Replaces the long-press + drag plan.
+**Why:** an explicit mode already prevents accidental moves, which is what the lock was for, so
+the lock would be a second guard for the same thing. Long-press is slow to discover and fights
+pan on a canvas.
+**Revisit if:** users report accidental moves inside the panel.
+
+### 2026-10-20 — A resize handle sets the anchor; typed and drag share one function
+**Decision:** all four corners get a handle while the edit panel is open; the grabbed or tapped
+handle's opposite corner is the anchor (default top-left, 3a's behaviour). Typed entry and
+drag both call one pure `resize(rect, newWidth, newDepth, anchor)` in `model/` (Double cm).
+Handle visual about 16-24 dp, hit area at least 48 dp, all sizes named constants in one `ui/`
+file, in dp.
+**Rule:** the four-corner anchor lives only inside `resize()` and the handle layout. The edit
+session, `Saver`, DAO and hit-testing don't hard-code four corners, so custom shapes (user-added
+vertices as new anchors) replace one function instead of a rewrite.
+**Why:** one function makes "drag == typed" true by construction. dp, not mm: dp is what
+Android and Material specify touch targets in (48 dp is about 9 mm on any phone), Compose has
+no physical unit, and converting to mm needs `xdpi`/`ydpi`, which some devices misreport.
+Density buckets make dp vary by about 10-20% in physical size between phones; tuning the
+constants on a real phone absorbs that.
+**Revisit if:** handle sizes feel wrong across several real phones (then: consider mm via
+`xdpi`, checked per device).
+
+### 2026-10-20 — Children stay put on corner resize, travel on move
+**Decision:** resizing from a non-top-left corner moves the parent's `xCm`/`yCm`; the same Room
+transaction subtracts that shift from each direct child's relative position, so children stay
+put on screen. Moving a zone changes only its own row: children are relative to it and travel
+with it. No schema change.
+**Why:** resizing is "change the outline", not "move the contents"; moving is "move it all".
+Everything is computed before the transaction, which holds only the DAO calls.
+
+### 2026-10-20 — Snapping deferred
+**Decision:** no snapping in 3b or 3c. If added later: drag only, never typed values; a toggle
+next to the drag controls; the drag result passes through one pure function so snapping is a
+one-place change.
+**Why:** a fixed cm step or a grid step needs 3e's grid and real-device feel first.
+
+### 2026-10-20 — X/Y position fields deferred
+**Decision:** the Move panel has no X/Y fields for now.
+**Why:** no obvious anchor (which point of the zone do X/Y name, relative to what?).
+**Revisit if:** precise placement is requested (with long-press to copy coordinates as a
+related idea).
+
+### 2026-10-20 — Positions may be negative
+**Decision:** `xCm`/`yCm` may be negative (finite only). Sizes keep the existing validation.
+**Why:** resizing from a top or left handle, or moving, can put a zone left of or above its
+parent's or the Area's origin; rejecting that would make the gestures fight the user. Area
+borders may come later to help users stay inside, likely with panning still allowed outside
+them, so every path that reads positions must handle negatives without crashing.
+**Revisit in:** Phase 5 (known_issues).
+
+### 2026-10-20 — Edit session is one saveable class, canvas state
+**Decision:** the edit session (mode, selected handle, draft values) is one small data class
+with a `Saver`, kept with `rememberSaveable`, saved in zone-relative cm; clamping is recomputed
+after rotation. Not a Nav3 destination.
+**Why:** one place for the draft that typed and drag input both write; the canvas must stay
+visible under the ghost, and every Nav3 key must be registered.

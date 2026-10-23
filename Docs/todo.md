@@ -4,11 +4,11 @@ TO DO:
 - provide plan for generic items such as pots and holes, so u can choose from a list,
 rather then recreate new every time.
 - find a few devices to start testing on
+- feel-test handle sizes on a real phone (3b: hit area 48 dp, try 56-64; visual 16-24 dp)
 - add change area name
 - add delete area
 - add delete GrowZone
 - Test and fix rotation issues for canvas: `focusedZoneId`
-- Second managed device at minSdk for older phone testing
 - **Area name cap (50 chars) is enforced only in the UI text field.** Move the rule to
   model/ and check it in the ViewModel too, so future paths (import, sync) can't bypass it.
 - Later, own branch: Gradle 9.8 bump;
@@ -17,7 +17,6 @@ rather then recreate new every time.
 - Find a way to automatically test clean up
 - Refactor android tests, collectFailures() used by all and helper functions
 - when zoned in to zone, add a visible name showing who we are inside
-- Second managed device at minSdk
 - Check with real users, is the edit/enter panel at the bottom, when selecting zone visible enough, alternatively it could be added to left side with a bit of color
 - In-app help/demo (own phase, after Phase 4 at the earliest):
   skippable first launch welcome + "?" button listing named stages
