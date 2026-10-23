@@ -48,15 +48,18 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   leftover `GrowZoneViewModel` instances.
   
 - [ ] **Phase 3 — GrowZone completeness (resize, move, containment)**
-  Split into 3a–3d for testability. Scope and exit criteria for each
+  Split into 3a–3e for testability, built in this order. Scope and exit criteria for each
   are in `Docs/phases/phase_3.md`.
-  - 3a: manual measurement entry + sizing caps (domain_model.md, Sizing Caps)
-  - 3e: Canvas scale (grid and zoom range)
-  - 3b: finger-drag resize, must match 3a's scale-to-cm result exactly
-  - 3c: drag move, with `position_locked`
-  - 3d: `bounds_enforced` collision enforcement + visual feedback
-  Overall exit criterion: a GrowZone can be created, resized, moved, and
-  nested with real containment. No PlacedItem work starts until this is solid.
+  - [x] 3a: manual measurement entry + sizing caps (domain_model.md, Sizing Caps)
+  - [ ] 3b: corner-handle drag resize; the handle sets the anchor; typed and drag share one
+    `resize()` and match exactly; children stay put
+  - [ ] 3e: canvas scale (adaptive grid, scale bar, zoom range from the size cap)
+  - [ ] 3c: move through an explicit Move panel (no `position_locked` on GrowZone);
+    children travel with the parent
+  - [ ] 3d: `bounds_enforced` collision enforcement + visual feedback
+  Overall exit criterion: a GrowZone can be created, resized from any corner (typed or
+  dragged, numerically identical), moved, and nested with real containment, on a canvas whose
+  grid shows true scale. No PlacedItem work starts until this is solid.
 
 - [ ] **Phase 3.5 — Addition of custom GrowZone**
     Custom GrowZone follows the same rules as non custom, except
@@ -81,7 +84,8 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   resetting on navigation (known_issues.md, currently tagged Phase 5)
   is a natural candidate to fold in here too, decide when this phase
   starts rather than committing to it now.
-  Canvas allocations per frame seem a bit high now partially solved, grid loop remains
+  Canvas allocations per frame: zone loop and grid `Stroke` fixed; per-cell grid `Offset`s
+  remain until 3e (known_issues).
 
 - [ ] **Phase 6 — Watering icon + timestamp**
   Watering icon appears in zoomed-in pot/hole view. Press, sets

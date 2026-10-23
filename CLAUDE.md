@@ -5,7 +5,7 @@ a larger plant-tracking project. **Only build what's in the current phase unless
 explicitly asked otherwise.**
 
 ## Current phase
-Phase 3a (manual resize + sizing caps). Scope and exit criteria: `Docs/phases/phase_3.md`.
+Phase 3b (drag resize, handle sets the anchor). Scope and exit criteria: `Docs/phases/phase_3.md`.
 
 ## Safety Rules
 - Never auto-commit. Show the diff and let me review before committing.
@@ -76,5 +76,6 @@ When explaining code or suggesting patterns, note:
 - `Docs/known_issues.md`: when starting a phase ("Potential Concerns" may have become relevant).
 - `Docs/decisions.md`: before changing behaviour that looks like a bug (it may be intentional).
 - `Docs/manual_checks`: when a change touches an area it lists.
-- Don't read unless asked: `Docs/progression_log.md`, `Docs/kotlin_notes.md`,
-  `Docs/android_compose_notes.md`, `Docs/todo.md` (private, gitignored study notes).
+- Don't read unless asked: `Docs/progression_log.md` (done work moves here from known_issues),
+  `Docs/todo.md` (both tracked project docs), `Docs/kotlin_notes.md`,
+  `Docs/android_compose_notes.md` (private, gitignored study notes).
