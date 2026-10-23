@@ -17,12 +17,19 @@ Build/tooling gotchas, as they come up.
   tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
   updates protobuf.
 
-- **Canvas allocates per frame while panning.** ~5 s of panning: ~25.8k `Stroke`
-  (new Stroke per drawRect in grid and zone loops) and ~26.5k `Offset` (likely boxed
-  in the List returned by visibleGridCellOrigins). Short-lived, but GC churn → stutter
-  risk on older phones. Fix: hoist Stroke out of the loops (remember), iterate grid
-  cells without a boxed list. Verify with a before/after allocation recording.
-  — Phase 5
+- **Canvas allocates per frame while panning (grid cell Offsets remain).** Zone loop fixed
+  zone draw data is precomputed with `remember` (`DrawZone`) and the border
+  `Stroke` is hoisted, so a pan no longer allocates a `PositionCm`, `Stroke` or
+  parent-chain walk per zone per frame. Measured with 200 zones (3 runs, Profiler on):
+  Stroke/frame 311 -> 136, PositionCm/frame ~180 -> 0, janky 76% -> 53%,
+  p90 101 -> 65 ms. Grid `Stroke` hoisted 2026-10-20: Stroke/frame ~259 -> 0 (Profiler on,
+  3 runs; timing not compared, Profiler-off baseline in canvas_benchmark/how_to.md). Still open: ~260 `Offset`/frame at the benchmark zoom
+  (boxed in the List returned by `visibleGridCellOrigins`, one per cell), regardless of
+  zone count. Fix: iterate cells without a boxed list (Phase 3e grid as lines). Also not done: every zone
+  is drawn even when off screen (viewport culling / dot mode), new implementation of scale based grid may help also.
+  Verify with `Docs/manual_checks/canvas_benchmark/`. — Phase 5
+
+- Add dependency in android studio quick fix, silently edited libs.versions.toml, causing build issues.
 
 # Potential Concerns
 
@@ -33,13 +40,6 @@ bugs, nothing needs fixing now.
   router is gone (Nav3). As more DAOs/ViewModels appear, consider a small AppContainer
   created once in an Application subclass instead of building dependencies inline.
   — when a third DAO arrives
-
-- **Grid spacing (`GRID_SPACING` in `AreaCanvasScreen.kt`) has no real world cm anchor yet.** 
-  Phase 3's scale to cm resize work will
-  need to define one; the grid should likely switch to being cm based
-  at that point so it functions as an actual ruler, not just a zoom
-  indicator.
-  — Phase 3a
 
 - **Canvas pan/zoom (`CanvasTransform`) resets on navigating away and back.**
   Currently unavoidable, it's local `remember` state. Worth
@@ -59,6 +59,26 @@ bugs, nothing needs fixing now.
   Correct for now for empty canvas, nothing to bound around yet. Worth
   revisiting once there's placed content (clamp like Miro/draw.io do).
   — Phase 3d/phase3c
+
+- **Quick focus from the name box breadcrumb.** 3a's breadcrumb only selects a zone.
+  Tapping a breadcrumb entry could also focus (enter) that zone directly, a quick way back up
+  the chain. Decide the gesture (tap selected entry again, or long-press) once 3a is in use.
+  — after Phase 3a
+
+- **Size draft state is duplicated between the edit panel and the create dialog.** Each
+  holds three texts + a warning value in `rememberSaveable`, each field's change lambda
+  clears the warning, and the "show soft warning or confirm" branch is written twice
+  (`saveEdit` and the dialog's Create button). 3b's drag resize writes into the same draft
+  and its exit criterion is drag == typed entry, so a shared draft holder would make that one
+  path. Cost: a custom `Saver` to keep it saveable.
+  — Phase 3b
+
+- **The grid recomposes on every pan frame.** `transform` is read during composition (in
+  `AreaCanvasScreen`'s `BoxWithConstraints` content), so each pan frame recomposes
+  `PannableZoomableGrid` instead of only redrawing. Fix: defer the read to the draw phase
+  (pass `() -> CanvasTransform` or the `State`). Check recomposition counts in Layout
+  Inspector first; compare with the Profiler-off baseline in canvas_benchmark/how_to.md.
+  — Phase 3e
 
 - **naming conventions**
   If Area names or type names are the same, this may affect user experince and
@@ -100,12 +120,6 @@ bugs, nothing needs fixing now.
   GrowZoneViewModel (`android.util.Log`: needs a logger wrapper),
   Habit: keep `android.*` and `Context` out of shared logic, and pass platform
   objects in from MainActivity. Model/ is already plain Kotlin.
-
-
-- **Zone focus is lost on rotation.** `focusedZoneId` and `transform` are plain
-  `remember`. They must be saved together or the UI shows "inside a zone" at default
-  zoom. Likely approach: save `focusedZoneId`, recompute the zoom with `fitTransform`
-  once the canvas is measured (doesn't decide the Phase 5 "persist pan/zoom" question).
 
 - **`StateRestorationTester` is an emulation of rotation.** It rebuilds the composition
   in the same Activity. Dialog windows can linger briefly and give a false pass. The

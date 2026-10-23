@@ -49,8 +49,9 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   
 - [ ] **Phase 3 — GrowZone completeness (resize, move, containment)**
   Split into 3a–3d for testability. Scope and exit criteria for each
-  are in `Docs/phases/phase_3/`.
+  are in `Docs/phases/phase_3.md`.
   - 3a: manual measurement entry + sizing caps (domain_model.md, Sizing Caps)
+  - 3e: Canvas scale (grid and zoom range)
   - 3b: finger-drag resize, must match 3a's scale-to-cm result exactly
   - 3c: drag move, with `position_locked`
   - 3d: `bounds_enforced` collision enforcement + visual feedback
@@ -80,7 +81,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   resetting on navigation (known_issues.md, currently tagged Phase 5)
   is a natural candidate to fold in here too, decide when this phase
   starts rather than committing to it now.
-  Canvas allocations per frame seem a bit high (see known_issues + manual_checks M5) 
+  Canvas allocations per frame seem a bit high now partially solved, grid loop remains
 
 - [ ] **Phase 6 — Watering icon + timestamp**
   Watering icon appears in zoomed-in pot/hole view. Press, sets

@@ -1,13 +1,13 @@
 package com.practice.plantUser.model
 
-// import androidx.compose.ui.geometry.Offset
+// import com.practice.plantUser.model.SizingLimits.GrowZoneLimits
 
 private const val GROW_ZONE_GAP_CM = 50.0
 private const val NESTED_ZONE_PADDING_CM = 20.0
 
 // Flat cap, not type-specific — see domain_model.md's Nesting Rules for why type-pairing
 // restrictions were dropped. A top-level zone is depth 1, so this allows 2 levels of nesting.
-private const val MAX_NESTING_DEPTH = 3
+// const val MAX_NESTING_DEPTH = 3
 
 /** Placeholder auto-layout (Phase 2): next top-level zone goes to the right of the current
  * rightmost zone's edge, plus a fixed gap. No drag-to-place UI exists yet (Phase 5). */
@@ -46,8 +46,8 @@ private fun nestingDepth(zone: GrowZone, allZones: List<GrowZone>): Int {
  */
 fun nestingRejectionReason(parent: GrowZone?, allZones: List<GrowZone>): String? {
     if (parent == null) return null
-    if (nestingDepth(parent, allZones) + 1 > MAX_NESTING_DEPTH) {
-        return "GrowZones can only nest $MAX_NESTING_DEPTH levels deep"
+    if (nestingDepth(parent, allZones) + 1 > GrowZoneLimits.MAX_NESTING_DEPTH) {
+        return ValidationMessages.NESTING_DEPTH_EXCEEDED
     }
     return null
 }

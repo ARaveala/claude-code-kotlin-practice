@@ -72,9 +72,9 @@ containment shows up then.
 ## Sizing Caps
 
 - Dimension caps exist to prevent overflow/rendering issues at extreme zoom and to catch fat-finger entry (e.g. a 5000cm box).
-- Exact cap values are TBD — determine via testing in Phase 3, not hardcoded assumptions yet.
-- Soft warnings for absurd sizes TBD.
+- Exact cap values for GrowZones are in app/src/main/java/com/practice/plantUser/model/SizingLimits.kt
 - Caps are a sanity ceiling, not a physical/weight simulation. Weight-based limits (e.g. "70kg full") are informational only, not a validation gate — soil density varies too much to enforce as a hard rule.
+- The grid spacing will use adaptive scale, min 1m max for now 1000m, to lessen draw amount on zoom out.
 
 ## Rendering Rules (Level of Detail)
 
@@ -84,9 +84,15 @@ containment shows up then.
 - This rule applies uniformly — no special-casing for unnested vs. nested items.
 
 ## Interaction Notes
-
+- Tap GrowZone: selects it (outline highlight, inline action bar with Enter and
+  Edit size), aswell as a name box for GrowZone name top left near back button.
+  The camera does not move.Tapping empty canvas clears selection.
+- Enter (bar button): fast zoom in, framed so the zone's edges are fully
+  visible. Selection survives pan/zoom. The focused zone ignores taps; only its
+  children and empty space respond; smallest zone under the finger wins.
 - Move: long-press + drag. Locked items (`position_locked = true`) reject move.
-- Tap GrowZone → fast zoom in, framed so the zone's edges are fully visible on screen.
 - From inside a GrowZone, further zoom is possible (nested content, or approaching the dot-mode threshold).
 - Tap PlacedItem (pot/hole) → does NOT zoom the canvas. Opens a detail card/sheet instead (left: color swatch or image, right: fields).
 - Resize GrowZone either by finger-drag or by entering exact measurements — both must resolve to the same scale-to-cm result.
+- Edit size: inline non-modal panel, measurements only (width, depth, height),
+  live ghost preview, top-left corner fixed.

@@ -5,7 +5,7 @@ a larger plant-tracking project. **Only build what's in the current phase unless
 explicitly asked otherwise.**
 
 ## Current phase
-Phase 3a (manual resize + sizing caps). Scope and exit criteria: `Docs/phases/phase_3/`.
+Phase 3a (manual resize + sizing caps). Scope and exit criteria: `Docs/phases/phase_3.md`.
 
 ## Safety Rules
 - Never auto-commit. Show the diff and let me review before committing.
@@ -47,6 +47,7 @@ When explaining code or suggesting patterns, note:
   crashes at runtime.
 - User-created UI state (open dialogs, typed text) uses `rememberSaveable`;
   measured/derived values (e.g. canvas size) use `remember`.
+- Never add or change a dependency or libs.versions.toml entry without proposing it first.
 
 ## Style (ktlint)
 - `.editorconfig` is the source of truth for style. Don't reformat existing code or
@@ -54,13 +55,11 @@ When explaining code or suggesting patterns, note:
 - Don't run `ktlintFormat`/`ktlintCheck`; I run them myself.
 
 ## Error/Validation Messages & Logging
-- Validation rejections use named constants in a central file (e.g. `ValidationMessages.kt`:
-  `SIZING_CAP_EXCEEDED`, `NESTING_DEPTH_EXCEEDED`, `COLLISION_DETECTED`), never ad hoc
-  strings. Each message states what failed, where (file/function), and enough context
-  to debug. New validation case = new named constant.
+- Validation rejections use named constants in a central file (e.g. `app/src/main/java/com/practice/plantUser/model/ValidationMessages.kt`): never ad hoc
+  strings.
 - Log with Android `Log.d`/`Log.e`, not `println`. One tag per file (tag = class/file
   name). Add logging as each function is built, not later.
-
+  Each message states what failed where (file/function), and enough context to debug.
 ## Commands
 - `./gradlew build`: lint (warnings are errors) + all unit tests incl. ArchitectureTest.
   The Run button only installs, it doesn't test.
@@ -76,6 +75,6 @@ When explaining code or suggesting patterns, note:
 - `Docs/roadmap.md`, `Docs/domain_model.md`: at the start of a phase, or when a task touches entities/rules.
 - `Docs/known_issues.md`: when starting a phase ("Potential Concerns" may have become relevant).
 - `Docs/decisions.md`: before changing behaviour that looks like a bug (it may be intentional).
-- `Docs/manual_checks.md`: when a change touches an area it lists.
+- `Docs/manual_checks`: when a change touches an area it lists.
 - Don't read unless asked: `Docs/progression_log.md`, `Docs/kotlin_notes.md`,
-  `Docs/android_compose_notes.md`, `Docs/todo` (private, gitignored study notes).
+  `Docs/android_compose_notes.md`, `Docs/todo.md` (private, gitignored study notes).

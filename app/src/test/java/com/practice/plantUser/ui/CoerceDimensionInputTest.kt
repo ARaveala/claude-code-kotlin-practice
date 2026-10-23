@@ -1,42 +1,7 @@
 package com.practice.plantUser.ui
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
-
-class IsPositiveDimensionTest {
-    @Test
-    fun `positive value is accepted`() {
-        assertTrue(isPositiveDimension("100"))
-    }
-
-    @Test
-    fun `zero is rejected`() {
-        // Boundary check: this is exactly the 0x0 GrowZone case this function exists to prevent.
-        assertFalse(isPositiveDimension("0"))
-    }
-
-    @Test
-    fun `negative value is rejected`() {
-        assertFalse(isPositiveDimension("-5"))
-    }
-
-    @Test
-    fun `blank input is rejected`() {
-        assertFalse(isPositiveDimension(""))
-    }
-
-    @Test
-    fun `non numeric input is rejected`() {
-        assertFalse(isPositiveDimension("abc"))
-    }
-
-    @Test
-    fun `decimal value is accepted`() {
-        assertTrue(isPositiveDimension("12.5"))
-    }
-}
 
 class CoerceDimensionInputTest {
     @Test

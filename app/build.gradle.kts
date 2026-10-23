@@ -55,6 +55,11 @@ android {
                     apiLevel = 35
                     systemImageSource = "aosp-atd" // stripped-down image made for tests: boots faster
                 }
+                create("minSdk24") {
+                    device = "Small Phone"
+                    apiLevel = 24
+                    systemImageSource = "aosp" // no ATD image exists this old, so use the plain AOSP one
+                }
             }
         }
     }

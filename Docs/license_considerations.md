@@ -15,7 +15,7 @@ on it; terms can change between versions. Last reviewed: (07.10.2026).
   Actions minutes quota.
 
 ## Dependencies shipped in the app
-- Kotlin, Jetpack Compose, Room, AndroidX: Apache 2.0 (keep license/notice
+- Kotlin, Jetpack Compose, Room, AndroidX, Nav3, kotlinx-serialization, Konsist: Apache 2.0 (keep license/notice
   text if redistributing).
 - Check each new dependency's license before adding it. Be especially
   careful with GPL/AGPL, which can impose conditions on the whole app.
