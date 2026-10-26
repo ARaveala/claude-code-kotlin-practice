@@ -11,10 +11,13 @@
 - id, area_id, parent_grow_zone_id (nullable — set when nested inside another GrowZone)
 - type: greenhouse | plot | box | wild
 - name
-- width_cm, depth_cm, height_cm (nullable — plot/box only)
-- shape (rect to start; extend later)
+- width_cm, depth_cm, height_cm (nullable, any type: the user decides how to use it)
+- x_cm, y_cm: position relative to the parent zone, or to the Area when top level. May be
+  negative; finite values only (decisions.md 2026-10-20)
+- shape (rect to start; extend later). Collision (3d) takes the zone, not an assumed rectangle
 - bounds_enforced (bool, default true) — see Wall Collision rules below
-- position_locked (bool, default false) — added in Phase 3c; if true, the zone rejects move
+- No position_locked: GrowZones are moved only through the explicit Move panel (Phase 3c,
+  decisions.md 2026-10-20)
 
 **PlacedItem** (unifies pot and hole — same entity, `kind` field distinguishes)
 - id, grow_zone_id (nullable — an item can exist directly in an Area, unnested)
@@ -26,7 +29,7 @@
 - image (nullable, local file path) — Phase 4.5
 - color (placeholder visual before images — Phase 4)
 - notes (nullable)
-- position_locked (bool)
+- position_locked (bool) — meaning decided in Phase 4
 - watered_last (nullable timestamp, set from device clock on watering-icon press)
 
 Note: exactly one of `grow_zone_id` / `area_id` should be set per PlacedItem, never both.
@@ -61,8 +64,9 @@ containment shows up then.
   `bounds_enforced` flag to govern overlap with sibling GrowZones in that Area — `true`
   (default) keeps siblings apart, `false` allows freeform/overlapping placement. Same flag,
   same meaning, just no parent to be contained by at that level.
-- `position_locked` independent from `bounds_enforced`.
-   GrowZones get a `position_locked` field (bool, default false, mirroring PlacedItem's), added in Phase 3c with drag move. It governs whether a zone can be moved at all, including resizing, a separate axis from whether it's allowed to overlap.
+- GrowZones have no `position_locked` (dropped 2026-10-20): a zone only moves through the Move
+  panel, so accidental moves are already prevented. PlacedItem's `position_locked` stays, a
+  separate axis from `bounds_enforced`; decided in Phase 4.
 - This is also how "visually overlapping, but not sharing conditions" is meant to work: a Box
   that visually sits on top of a Plot without being managed by it is just a top-level Box
   (`parent_grow_zone_id = null`) with `bounds_enforced = false`, positioned so it happens to
@@ -84,15 +88,20 @@ containment shows up then.
 - This rule applies uniformly — no special-casing for unnested vs. nested items.
 
 ## Interaction Notes
-- Tap GrowZone: selects it (outline highlight, inline action bar with Enter and
-  Edit size), aswell as a name box for GrowZone name top left near back button.
+- Tap GrowZone: selects it (outline highlight, inline action bar with Enter,
+  Edit size and, from 3c, Move), aswell as a name box for GrowZone name top left near back button.
   The camera does not move.Tapping empty canvas clears selection.
 - Enter (bar button): fast zoom in, framed so the zone's edges are fully
   visible. Selection survives pan/zoom. The focused zone ignores taps; only its
   children and empty space respond; smallest zone under the finger wins.
-- Move: long-press + drag. Locked items (`position_locked = true`) reject move.
+- Move (3c): the action bar's Move button opens an inline panel (Done / Cancel) with a ghost
+  and a move handle; dragging the handle moves the zone, panning always pans, nothing applies
+  until Done. Children travel with the parent (stored relative to it).
 - From inside a GrowZone, further zoom is possible (nested content, or approaching the dot-mode threshold).
 - Tap PlacedItem (pot/hole) → does NOT zoom the canvas. Opens a detail card/sheet instead (left: color swatch or image, right: fields).
-- Resize GrowZone either by finger-drag or by entering exact measurements — both must resolve to the same scale-to-cm result.
-- Edit size: inline non-modal panel, measurements only (width, depth, height),
-  live ghost preview, top-left corner fixed.
+- Resize GrowZone either by finger-drag or by entering exact measurements — both go through one
+  `resize()` function and resolve to the same Double cm result.
+- Edit size: inline non-modal panel, measurements only (width, depth, height), live ghost
+  preview with a size readout. From 3b, corner handles show while the panel is open; the
+  grabbed or tapped handle's opposite corner is the anchor (default top-left). Children stay
+  put on screen when the parent's origin moves.

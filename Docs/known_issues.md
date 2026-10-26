@@ -17,17 +17,12 @@ Build/tooling gotchas, as they come up.
   tooling (Gradle on JDK 25). Not app code, not fixable locally; goes away when AGP
   updates protobuf.
 
-- **Canvas allocates per frame while panning (grid cell Offsets remain).** Zone loop fixed
-  zone draw data is precomputed with `remember` (`DrawZone`) and the border
-  `Stroke` is hoisted, so a pan no longer allocates a `PositionCm`, `Stroke` or
-  parent-chain walk per zone per frame. Measured with 200 zones (3 runs, Profiler on):
-  Stroke/frame 311 -> 136, PositionCm/frame ~180 -> 0, janky 76% -> 53%,
-  p90 101 -> 65 ms. Grid `Stroke` hoisted 2026-10-20: Stroke/frame ~259 -> 0 (Profiler on,
-  3 runs; timing not compared, Profiler-off baseline in canvas_benchmark/how_to.md). Still open: ~260 `Offset`/frame at the benchmark zoom
-  (boxed in the List returned by `visibleGridCellOrigins`, one per cell), regardless of
-  zone count. Fix: iterate cells without a boxed list (Phase 3e grid as lines). Also not done: every zone
-  is drawn even when off screen (viewport culling / dot mode), new implementation of scale based grid may help also.
-  Verify with `Docs/manual_checks/canvas_benchmark/`. — Phase 5
+- **Canvas allocates per frame while panning: grid cell Offsets.** ~260 `Offset`/frame at the
+  benchmark zoom (boxed in the List returned by `visibleGridCellOrigins`, one per cell),
+  regardless of zone count. Fix: iterate cells without a boxed list (Phase 3e grid as lines).
+  Also not done: every zone is drawn even when off screen (viewport culling / dot mode, Phase 5).
+  Verify with `Docs/manual_checks/canvas_benchmark/`. Fixed parts (zone loop, grid `Stroke`):
+  progression_log.md. — Phase 3e / Phase 5
 
 - Add dependency in android studio quick fix, silently edited libs.versions.toml, causing build issues.
 
@@ -68,9 +63,9 @@ bugs, nothing needs fixing now.
 - **Size draft state is duplicated between the edit panel and the create dialog.** Each
   holds three texts + a warning value in `rememberSaveable`, each field's change lambda
   clears the warning, and the "show soft warning or confirm" branch is written twice
-  (`saveEdit` and the dialog's Create button). 3b's drag resize writes into the same draft
-  and its exit criterion is drag == typed entry, so a shared draft holder would make that one
-  path. Cost: a custom `Saver` to keep it saveable.
+  (`saveEdit` and the dialog's Create button). Decided for the edit panel: the 3b edit session
+  is one saveable class (decisions.md 2026-10-20). Still open: whether the create dialog reuses
+  its draft part, or keeps its own.
   — Phase 3b
 
 - **The grid recomposes on every pan frame.** `transform` is read during composition (in
@@ -79,6 +74,42 @@ bugs, nothing needs fixing now.
   (pass `() -> CanvasTransform` or the `State`). Check recomposition counts in Layout
   Inspector first; compare with the Profiler-off baseline in canvas_benchmark/how_to.md.
   — Phase 3e
+
+- **Snapping (deferred).** Drag only, never typed values; a toggle next to the drag controls;
+  the drag result passes through one pure function so it's a one-place change. Needs 3e's grid
+  and real-device feel first (decisions.md 2026-10-20).
+  — after 3e
+
+- **X/Y fields in the Move panel (deferred).** No obvious anchor yet: which point of the zone,
+  relative to what. Related idea: long-press to copy coordinates.
+  — after 3c
+
+- **Resize anchor arrow / direction indicator.** 3b marks the anchor with a dot only. An arrow
+  showing which way the zone grows may help; decide after real-device use.
+  — after 3b
+
+- **Undo for resize/move.** Leave room for an undo button in the panels. Likely more useful once
+  custom shapes exist (many vertex edits).
+  — Phase 3.5+ / custom shapes
+
+- **Custom shapes need a different size readout.** 3b's readout is width x depth; an octagon or
+  half circle has no meaningful width/depth. Also later: an "add a handle" action that creates
+  a new vertex, for custom shape creation. Each new vertex is a possible anchor; dragging works
+  as planned for corner handles. 3b's "corner handles only" tier for small zones is meant to hide
+  these extra handles.
+  — custom shapes phase
+
+- **Negative positions are allowed (3b).** Review the policy once real layouts exist: whether
+  zones far left of/above the origin cause framing, panning or grid issues. Related idea: Area
+  borders so users can easily stay inside, probably with panning still allowed outside them.
+  Either way, negatives must never crash.
+  — Phase 5
+
+- **New-child placement can overlap existing children.** The placeholder placement doesn't check
+  siblings. Open: never overlap an existing child; what happens when there's no room; whether the
+  free-spot search applies when `bounds_enforced` is off. Test idea: a pure function over the
+  existing child rects.
+  — Phase 3d
 
 - **naming conventions**
   If Area names or type names are the same, this may affect user experince and

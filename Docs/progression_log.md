@@ -155,3 +155,42 @@ Gotcha: the Gradle
 - Decision: the draw loop must be sized for hundreds of zones (custom zones, many small
   ones). The per frame PositionCm allocation, the parent-chain walk and a Stroke per zone all scale with zone count, precompute (remember a DrawZone list) hoisted. Grid loop allocation stays a Phase 5 item.
 - Huge docs refactoring again, must find a way to lower documentation level , this is too much.
+
+**Phase 3a — Manual resize + sizing caps (done 2026-10-20)**
+- Built tap to select with a non-modal action bar (Enter, Edit size), a breadcrumb name box
+  showing the full path, and the inline edit panel with a dashed ghost preview. Caps live in
+  `model/SizingLimits.kt` and are checked again in the ViewModel; NaN/infinity rejected. The
+  soft warning (Accept/Cancel above 5,000 cm) is in both the panel and the create dialog.
+  `updateSize` writes only the size columns.
+- Back order decided: clear selection/panel, then zoom out one level, then leave the Area.
+  Found two bugs by hand on the emulator: the toolbar arrow left the Area directly, and the
+  breadcrumb missed the parent. Both fixed test-first; back now has one shared function.
+- New test habit: every assert names the function, the input and the file, so a failure is
+  readable without opening the test.
+- Test bug, not app bug: a tap at 600 cm (= 600 dp) was off a ~412 dp wide Pixel 8. Added a
+  geometry guard that fails as a test bug instead of looking like an app bug.
+- Refactor measured before/after with the Profiler (200 zones, 3 runs): the grid allocated a
+  `Stroke` per cell per frame, ~259/frame -> 0 after hoisting. Earlier zone loop fix (DrawZone
+  precompute + hoisted border Stroke): Stroke/frame 311 -> 136, PositionCm ~180 -> 0. The
+  dimension Regex was compiled on every keystroke; now once (the `Matcher` per call stays,
+  that's how java.util.regex works). Timing within noise. Learned: Profiler-on timing isn't
+  comparable with Profiler-off; divide allocation counts by frames rendered.
+- Added a second managed device, `minSdk24` (Small Phone, API 24; needs the experimental
+  `allowOldApiLevelDevices` flag, no ATD image that old). Full suite passes on both.
+- Landscape dialog bug: on the Pixel 8 the add-GrowZone dialog showed its buttons but cut off
+  width/depth and hid height. My first two tests passed on the broken code. Cause: the fields
+  were squeezed (laid out shorter by the AlertDialog's Column), not clipped, so checking
+  visible pixels against layout size proved nothing. Measuring laid-out height against
+  `TextFieldDefaults.MinHeight` failed on both devices, which showed the API 24 phone had it
+  too and I had missed it by eye. Fixed with a scrolling Column. Lesson: a test-first test
+  that passes on broken code means the test doesn't reproduce the bug yet.
+
+**Phase 3b-3e planning (2026-10-20)**
+- Order: 3b, 3e, 3c, 3d. 3e depends only on 3a, and doing it after 3b means 3c is felt on a
+  clean canvas.
+- Resize: four corner handles while the edit panel is open; the handle sets the anchor; typed
+  and drag share one `resize()` in model/. Kept the four-corner anchor inside that function so
+  custom shapes (user-added vertices as new anchors) don't need a rewrite.
+- Move: an explicit Move panel replaces long-press and `position_locked` on GrowZone.
+- Positions may be negative, with Area borders a likely later addition, so every path that
+  reads positions must handle negatives without crashing.

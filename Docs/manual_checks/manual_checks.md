@@ -33,10 +33,13 @@ recent-apps screen (square button, or swipe up and hold) → tap the app card.
 **Expected:** returns to the same canvas (a brief blank is a known issue).
 **Don't:** use Android Studio Stop/Run, which force-stops and discards saved state.
 
-### M4 — Older device (not tried yet, pre-emptive)
+### M4 — Older device
 **Run when:** before a release, or after changing sizes or layout.
-**Steps:** run the app on a minSdk emulator profile.
+**Steps:** run the app on a minSdk emulator profile (AVD `minsdk24_T1`: Small Phone, API 24).
 **Expected:** list, canvas, and dialogs usable; grid and zones render correctly.
+**Last run:** 2026-10-20, passed on the API 24 Small Phone emulator (add-GrowZone dialog
+landscape clipping found and fixed the same day, progression_log.md). The emulator is hardware
+accelerated, so this says nothing about real old-phone frame timing (that is M5).
 
 ### M5 — Allocation profile while panning the canvas
 **Run when:** changing canvas drawing, gestures, or anything in the draw loop.

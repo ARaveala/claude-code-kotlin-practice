@@ -8,6 +8,7 @@ Docs/private_issues.md
 *.jks
 *.keystore
 claude_old.md
+Docs/private.md
 
 # Build artifacts
 .gradle/
