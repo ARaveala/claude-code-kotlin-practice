@@ -60,13 +60,13 @@ bugs, nothing needs fixing now.
   the chain. Decide the gesture (tap selected entry again, or long-press) once 3a is in use.
   — after Phase 3a
 
-- **Size draft state is duplicated between the edit panel and the create dialog.** Each
-  holds three texts + a warning value in `rememberSaveable`, each field's change lambda
-  clears the warning, and the "show soft warning or confirm" branch is written twice
-  (`saveEdit` and the dialog's Create button). Decided for the edit panel: the 3b edit session
-  is one saveable class (decisions.md 2026-10-20). Still open: whether the create dialog reuses
-  its draft part, or keeps its own.
-  — Phase 3b
+- **Size draft state is duplicated between the edit panel and the create dialog.** The edit
+  panel's side is done: its draft lives in `EditSession` (`ui/EditSession.kt`, one saveable
+  class, decisions.md 2026-10-20). The create dialog still holds its own three texts + warning
+  value in `rememberSaveable`, and the "show soft warning or confirm" branch is still written
+  twice (`saveEdit` and the dialog's Create button). Still open: whether the create dialog
+  reuses a shared draft part, or keeps its own.
+  — refactor branch after 3b
 
 - **The grid recomposes on every pan frame.** `transform` is read during composition (in
   `AreaCanvasScreen`'s `BoxWithConstraints` content), so each pan frame recomposes

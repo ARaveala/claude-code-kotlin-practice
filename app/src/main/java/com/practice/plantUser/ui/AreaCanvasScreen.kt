@@ -135,19 +135,17 @@ fun AreaCanvasScreen(
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     // Rotation (decisions.md, provisional): focus and transform reset together. Selection and the
-    // edit panel (zone id, draft text, showing warning) are user state and survive.
+    // edit session (zone, draft text, warning, selected handle) are user state and survive.
     var focusedZoneId by remember { mutableStateOf<Long?>(null) }
     var transform by remember { mutableStateOf(DEFAULT_TRANSFORM) }
     var selectedZoneId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var editingZoneId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var editWidthText by rememberSaveable { mutableStateOf("") }
-    var editDepthText by rememberSaveable { mutableStateOf("") }
-    var editHeightText by rememberSaveable { mutableStateOf("") }
-    var editWarningCm by rememberSaveable { mutableStateOf<Double?>(null) }
-    // Handle tapped while the edit panel is open; its opposite corner is the anchor. Null = 3a's
-    // top-left anchor. An enum is Serializable, so rememberSaveable keeps it across rotation.
-    var selectedHandle by rememberSaveable { mutableStateOf<Anchor?>(null) }
-    val resizeAnchor = selectedHandle?.opposite ?: Anchor.TOP_LEFT
+    // Null = edit panel closed. Every change is a copy(): one small object per keystroke or drag
+    // frame, the previous one becomes garbage.
+    var editSession by rememberSaveable(stateSaver = EditSessionSaver) { mutableStateOf<EditSession?>(null) }
+    // Composition-time snapshot for reading below; the functions read editSession itself, so a
+    // callback never acts on a stale copy.
+    val session = editSession
+    val resizeAnchor = session?.anchor ?: Anchor.TOP_LEFT
     // Set at handle drag start, read on every drag frame (never in composition, so no recompose).
     var dragParentOrigin by remember { mutableStateOf(PositionCm(0.0, 0.0)) }
     var canvasSizePx by remember { mutableStateOf(Size.Zero) }
@@ -156,13 +154,13 @@ fun AreaCanvasScreen(
 
     val focusedZone = growZones.firstOrNull { it.id == focusedZoneId }
     val selectedZone = growZones.firstOrNull { it.id == selectedZoneId }
-    val editingZone = growZones.firstOrNull { it.id == editingZoneId }
+    val editingZone = session?.let { s -> growZones.firstOrNull { it.id == s.zoneId } }
     // Name box path: to the selected zone if any, else to the focused zone (root first).
     val breadcrumbChain = remember(growZones, selectedZone, focusedZoneId) {
         zoneChain(growZones, selectedZone?.id ?: focusedZoneId)
     }
-    val editInput = remember(editWidthText, editDepthText, editHeightText) {
-        checkSizeInput(editWidthText, editDepthText, editHeightText)
+    val editInput = remember(session?.widthText, session?.depthText, session?.heightText) {
+        checkSizeInput(session?.widthText ?: "", session?.depthText ?: "", session?.heightText ?: "")
     }
     // Ghost preview: only while both parsed values are valid. Same Doubles applyEdit() sends.
     val ghostZone = remember(editingZone, editInput, resizeAnchor) {
@@ -193,8 +191,9 @@ fun AreaCanvasScreen(
     // Single place selection changes. Ignored while the edit panel is open, so a stray tap (canvas
     // or breadcrumb) can't discard a draft; Save/Cancel/back close the panel first.
     fun selectZone(id: Long?, source: String) {
-        if (editingZoneId != null) {
-            Log.d(TAG, "selectZone: ignored from $source, edit panel open for zoneId=$editingZoneId")
+        val open = editSession
+        if (open != null) {
+            Log.d(TAG, "selectZone: ignored from $source, edit panel open for zoneId=${open.zoneId}")
             return
         }
         Log.d(TAG, "selectZone: zoneId=$id from $source (was $selectedZoneId, focused=$focusedZoneId)")
@@ -222,34 +221,32 @@ fun AreaCanvasScreen(
             return
         }
         Log.d(TAG, "openEditPanel: zoneId=$id current ${zone.widthCm}x${zone.depthCm} heightCm=${zone.heightCm}")
-        editingZoneId = id
-        editWidthText = formatCm(zone.widthCm)
-        editDepthText = formatCm(zone.depthCm)
-        editHeightText = zone.heightCm?.let(::formatCm) ?: ""
-        editWarningCm = null
-        selectedHandle = null
+        editSession = EditSession(
+            zoneId = id,
+            widthText = formatCm(zone.widthCm),
+            depthText = formatCm(zone.depthCm),
+            heightText = zone.heightCm?.let(::formatCm) ?: ""
+        )
     }
 
     fun closeEditPanel() {
-        editingZoneId = null
-        editWarningCm = null
-        selectedHandle = null
+        editSession = null
     }
 
     // Null = tap missed every handle, which clears the selection (back to the top-left anchor).
     fun onHandleTapped(handle: Anchor?) {
-        Log.d(TAG, "onHandleTapped: handle=$handle (was $selectedHandle) zoneId=$editingZoneId")
-        selectedHandle = handle
+        Log.d(TAG, "onHandleTapped: handle=$handle (was ${editSession?.selectedHandle}) zoneId=${editSession?.zoneId}")
+        editSession = editSession?.copy(selectedHandle = handle)
     }
 
     // Grabbing a handle selects it, so its opposite corner is the anchor for the whole drag.
     fun onHandleDragStart(handle: Anchor) {
         val zone = editingZone
         if (zone == null) {
-            Log.e(TAG, "onHandleDragStart: handle=$handle but no zone is being edited (editingZoneId=$editingZoneId)")
+            Log.e(TAG, "onHandleDragStart: handle=$handle but no zone is being edited (session=${editSession?.zoneId})")
             return
         }
-        selectedHandle = handle
+        editSession = editSession?.copy(selectedHandle = handle)
         dragParentOrigin = parentOriginCm(zone, growZones)
         Log.d(TAG, "onHandleDragStart: handle=$handle zoneId=${zone.id} parentOrigin=$dragParentOrigin")
     }
@@ -258,38 +255,43 @@ fun AreaCanvasScreen(
     // fields. The fields stay the single source of truth, so ghost, warning and Save are the typed
     // path unchanged. Allocates per frame: two Strings, plus dragResize's GrowZone copies.
     fun onHandleDrag(cornerCm: Offset) {
+        val current = editSession ?: return
         val zone = editingZone ?: return
-        val anchor = selectedHandle?.opposite ?: return
         val resized = dragResize(
             zone,
-            anchor,
+            current.anchor,
             cornerCm.x - dragParentOrigin.xCm,
             cornerCm.y - dragParentOrigin.yCm
         )
-        editWidthText = formatCm(roundToDragStep(resized.widthCm))
-        editDepthText = formatCm(roundToDragStep(resized.depthCm))
-        editWarningCm = null
+        editSession = current.copy(
+            widthText = formatCm(roundToDragStep(resized.widthCm)),
+            depthText = formatCm(roundToDragStep(resized.depthCm)),
+            warningCm = null
+        )
     }
 
     fun onHandleDragEnd() {
+        val current = editSession
         Log.d(
             TAG,
-            "onHandleDragEnd: zoneId=$editingZoneId handle=$selectedHandle -> $editWidthText x $editDepthText cm"
+            "onHandleDragEnd: zoneId=${current?.zoneId} handle=${current?.selectedHandle} -> " +
+                "${current?.widthText} x ${current?.depthText} cm"
         )
     }
 
     fun applyEdit() {
-        val id = editingZoneId
+        val current = editSession
         val widthCm = editInput.widthCm
         val depthCm = editInput.depthCm
-        if (id == null || widthCm == null || depthCm == null || !editInput.isValid) {
+        if (current == null || widthCm == null || depthCm == null || !editInput.isValid) {
             Log.e(
                 TAG,
-                "applyEdit: invalid draft zoneId=$id width='$editWidthText' depth='$editDepthText' " +
-                    "height='$editHeightText'"
+                "applyEdit: invalid draft zoneId=${current?.zoneId} width='${current?.widthText}' " +
+                    "depth='${current?.depthText}' height='${current?.heightText}'"
             )
             return
         }
+        val id = current.zoneId
         Log.d(TAG, "applyEdit: zoneId=$id -> ${widthCm}x$depthCm heightCm=${editInput.heightCm}")
         onResizeGrowZone(id, widthCm, depthCm, editInput.heightCm, resizeAnchor)
         closeEditPanel()
@@ -298,8 +300,8 @@ fun AreaCanvasScreen(
     fun saveEdit() {
         val warnCm = editInput.softWarnValueCm
         if (warnCm != null) {
-            Log.d(TAG, "saveEdit: soft warning at ${warnCm}cm for zoneId=$editingZoneId")
-            editWarningCm = warnCm
+            Log.d(TAG, "saveEdit: soft warning at ${warnCm}cm for zoneId=${editSession?.zoneId}")
+            editSession = editSession?.copy(warningCm = warnCm)
         } else {
             applyEdit()
         }
@@ -309,8 +311,8 @@ fun AreaCanvasScreen(
     // Shared by system back and the toolbar arrow so the two can't disagree.
     fun navigateBack(source: String) {
         when {
-            selectedZoneId != null || editingZoneId != null -> {
-                Log.d(TAG, "navigateBack($source): clearing selection=$selectedZoneId editing=$editingZoneId")
+            selectedZoneId != null || editSession != null -> {
+                Log.d(TAG, "navigateBack($source): clearing selection=$selectedZoneId editing=${editSession?.zoneId}")
                 selectedZoneId = null
                 closeEditPanel()
             }
@@ -358,7 +360,7 @@ fun AreaCanvasScreen(
                 selectedZoneId = selectedZoneId,
                 ghostZone = ghostZone,
                 resizeAnchor = resizeAnchor,
-                selectedHandle = selectedHandle,
+                selectedHandle = session?.selectedHandle,
                 selectionColor = MaterialTheme.colorScheme.primary,
                 ghostColor = MaterialTheme.colorScheme.onSurface,
                 onTransformChange = { transform = it },
@@ -392,35 +394,27 @@ fun AreaCanvasScreen(
                 }
             }
 
-            if (editingZone != null) {
+            if (editingZone != null && session != null) {
                 EditSizePanel(
                     zoneName = editingZone.name,
-                    widthText = editWidthText,
-                    depthText = editDepthText,
-                    heightText = editHeightText,
-                    onWidthChange = {
-                        editWidthText = it
-                        editWarningCm = null
-                    },
-                    onDepthChange = {
-                        editDepthText = it
-                        editWarningCm = null
-                    },
-                    onHeightChange = {
-                        editHeightText = it
-                        editWarningCm = null
-                    },
+                    widthText = session.widthText,
+                    depthText = session.depthText,
+                    heightText = session.heightText,
+                    // Any edit clears a showing soft warning, as before.
+                    onWidthChange = { editSession = editSession?.copy(widthText = it, warningCm = null) },
+                    onDepthChange = { editSession = editSession?.copy(depthText = it, warningCm = null) },
+                    onHeightChange = { editSession = editSession?.copy(heightText = it, warningCm = null) },
                     sizeInput = editInput,
-                    warningValueCm = editWarningCm,
+                    warningValueCm = session.warningCm,
                     onSave = { saveEdit() },
                     onCancel = {
-                        Log.d(TAG, "edit panel: cancelled for zoneId=$editingZoneId")
+                        Log.d(TAG, "edit panel: cancelled for zoneId=${editSession?.zoneId}")
                         closeEditPanel()
                     },
                     onAcceptWarning = { applyEdit() },
                     onCancelWarning = {
-                        Log.d(TAG, "edit panel: soft warning cancelled for zoneId=$editingZoneId, draft kept")
-                        editWarningCm = null
+                        Log.d(TAG, "edit panel: soft warning cancelled for zoneId=${editSession?.zoneId}, draft kept")
+                        editSession = editSession?.copy(warningCm = null)
                     },
                     modifier =
                     if (isLandscape) {
