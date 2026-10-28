@@ -160,7 +160,7 @@ fun AreaCanvasScreen(
         val depthCm = editInput.depthCm
         if (editingZone != null && widthCm != null && depthCm != null) {
             // editingZone.copy(widthCm = widthCm, depthCm = depthCm)
-            resize(editingZone, widthCm, depthCm, Anchor.BOTTOM_LEFT)
+            resize(editingZone, widthCm, depthCm, Anchor.TOP_LEFT)
         } else {
             null
         }
@@ -489,7 +489,7 @@ private fun PannableZoomableGrid(
                 size = size,
                 style = ghostStroke
             )
-            drawResizeHandles(topLeft, size, Anchor.BOTTOM_LEFT)
+            drawResizeHandles(topLeft, size, Anchor.TOP_LEFT)
         }
     }
 }

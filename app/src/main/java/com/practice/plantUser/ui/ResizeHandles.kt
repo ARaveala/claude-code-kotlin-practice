@@ -33,7 +33,10 @@ fun DrawScope.drawResizeHandles(topLeft: Offset, size: Size, anchor: Anchor) {
     // need same top left calc and to pass anchor to draw anchor
     // unless we find this a feature not a bug?
     val dotRadiusPx = with(density) { 4.dp.toPx() }
-    val anchorAdjusted = Offset(topLeft.x + (anchor.fx).toFloat(), topLeft.y + (anchor.fy).toFloat())
+    val anchorAdjusted = Offset(
+        topLeft.x + size.width * anchor.fx.toFloat(),
+        topLeft.y + size.height * anchor.fy.toFloat()
+    )
     drawAnchor(anchorAdjusted, dotRadiusPx, Color.Black)
 
     drawResizeHandle(topLeftAdjusted, dotRadiusPx, color)

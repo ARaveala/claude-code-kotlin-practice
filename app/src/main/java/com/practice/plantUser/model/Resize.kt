@@ -28,3 +28,19 @@ fun resize(zone: GrowZone, newWidthCm: Double, newDepthCm: Double, anchor: Ancho
         yCm = anchorYCm - newDepthCm * anchor.fy
     )
 }
+
+/** [zone] resized so the corner opposite [anchor] follows the finger at ([fingerXCm], [fingerYCm]).
+ * [zone] is the zone as it was at drag start, so the anchor point stays fixed for the whole drag.
+ * Goes through [resize], so a drag and typed entry of the same size give the same result.
+ * (1 - 2 * fx) is +1 for a left anchor and -1 for a right one, so the distance is positive on the
+ * handle's side of the anchor. Runs every drag frame: two Double params, no PositionCm allocation. */
+fun dragResize(zone: GrowZone, anchor: Anchor, fingerXCm: Double, fingerYCm: Double): GrowZone {
+    val anchorXCm = zone.xCm + zone.widthCm * anchor.fx
+    val anchorYCm = zone.yCm + zone.depthCm * anchor.fy
+    // Clamped, not rejected: past the anchor the zone stops at the minimum instead of flipping.
+    val newWidthCm = ((fingerXCm - anchorXCm) * (1 - 2 * anchor.fx))
+        .coerceIn(GrowZoneLimits.MIN_DIMENSION_CM, GrowZoneLimits.MAX_WIDTH_DEPTH_CM)
+    val newDepthCm = ((fingerYCm - anchorYCm) * (1 - 2 * anchor.fy))
+        .coerceIn(GrowZoneLimits.MIN_DIMENSION_CM, GrowZoneLimits.MAX_WIDTH_DEPTH_CM)
+    return resize(zone, newWidthCm, newDepthCm, anchor)
+}

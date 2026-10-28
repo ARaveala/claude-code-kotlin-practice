@@ -96,3 +96,18 @@ class ResizeTest {
         assertCm(call, "yCm", 40.0, after.yCm)
     }
 }
+
+class DragResizeTest {
+    // x=10, y=20, 100 x 50: TOP_LEFT anchor point is (10, 20).
+    private val before = zone(id = 1, parentGrowZoneId = null, xCm = 10.0, yCm = 20.0)
+
+    @Test
+    fun `finger past the anchor clamps to the minimum instead of flipping`() {
+        // Finger 5 cm left of a left anchor: unclamped, width is -5 and the zone flips over.
+        val call = "dragResize TOP_LEFT, finger (5, 100)"
+        val after = dragResize(before, Anchor.TOP_LEFT, fingerXCm = 5.0, fingerYCm = 100.0)
+
+        assertCm(call, "widthCm", GrowZoneLimits.MIN_DIMENSION_CM, after.widthCm)
+        assertCm(call, "xCm", before.xCm, after.xCm)
+    }
+}
