@@ -21,6 +21,17 @@ val HANDLE_RADIUS = 4.dp
 val SELECTED_HANDLE_RADIUS = 7.dp
 val ANCHOR_DOT_RADIUS = 4.dp
 
+// Size tier (phase_3.md 3b): when the zone's shorter side on screen is below about one hit size,
+// no handles and a "zoom in to resize" hint instead. Typed entry still works.
+// Preemptive in 3b: at the current MIN_SCALE (0.2) only small zones reach it (e.g. 30 x 30 cm at
+// default zoom). Becomes a normal zoom-out case once 3e derives MIN_SCALE from the size cap.
+val MIN_ZONE_SIZE_FOR_HANDLES = 48.dp
+const val ZOOM_IN_HINT = "Zoom in to resize"
+
+/** Whether the ghost is big enough on screen to show (and grab) handles. One check for drawing,
+ * tap and drag, so a hidden handle can't be hit. Per frame: two float compares. */
+fun handlesFit(size: Size, minZoneSizePx: Float): Boolean = minOf(size.width, size.height) >= minZoneSizePx
+
 // Drag sizes round to whole cm: finer than a finger can place, and the fields stay readable.
 // Precision, not grid snapping (snapping is deferred, known_issues).
 const val DRAG_STEP_CM = 1.0
@@ -41,9 +52,18 @@ fun handleCenter(topLeft: Offset, size: Size, corner: Anchor, gapPx: Float): Off
     )
 }
 
-/** The handle whose centre is nearest [point] within [hitRadiusPx], or null. Nearest wins so
- * overlapping hit areas on a small zone still pick the closest. Called per tap, not per frame. */
-fun hitTestHandle(point: Offset, topLeft: Offset, size: Size, gapPx: Float, hitRadiusPx: Float): Anchor? {
+/** The handle whose centre is nearest [point] within [hitRadiusPx], or null. Null too when the
+ * zone is below [minZoneSizePx] on screen (handles hidden, [handlesFit]). Nearest wins so
+ * overlapping hit areas still pick the closest. Called per tap, not per frame. */
+fun hitTestHandle(
+    point: Offset,
+    topLeft: Offset,
+    size: Size,
+    gapPx: Float,
+    hitRadiusPx: Float,
+    minZoneSizePx: Float
+): Anchor? {
+    if (!handlesFit(size, minZoneSizePx)) return null
     val corners = Anchor.entries
     var best: Anchor? = null
     var bestDistSq = hitRadiusPx * hitRadiusPx
@@ -113,11 +133,26 @@ fun DrawScope.drawSizeReadout(readout: TextLayoutResult, ghostTopLeft: Offset, g
     // Bottom of the readout sits above the largest (selected) top handle, plus a margin.
     val bottom = ghostTopLeft.y - HANDLE_GAP.toPx() - SELECTED_HANDLE_RADIUS.toPx() - READOUT_MARGIN.toPx()
     val textTopLeft = Offset(ghostTopLeft.x + (ghostSize.width - textWidth) / 2f, bottom - paddingPx - textHeight)
+    drawLabel(readout, textTopLeft, paddingPx, background)
+}
+
+/** [hint] centred just below the ghost (no handles are drawn in this tier, so no clearance needed). */
+fun DrawScope.drawZoomInHint(hint: TextLayoutResult, ghostTopLeft: Offset, ghostSize: Size, background: Color) {
+    val paddingPx = READOUT_PADDING.toPx()
+    val textTopLeft = Offset(
+        ghostTopLeft.x + (ghostSize.width - hint.size.width) / 2f,
+        ghostTopLeft.y + ghostSize.height + READOUT_MARGIN.toPx() + paddingPx
+    )
+    drawLabel(hint, textTopLeft, paddingPx, background)
+}
+
+/** Measured text on a rounded background, padded by [paddingPx] on every side. */
+private fun DrawScope.drawLabel(text: TextLayoutResult, textTopLeft: Offset, paddingPx: Float, background: Color) {
     drawRoundRect(
         color = background,
         topLeft = Offset(textTopLeft.x - paddingPx, textTopLeft.y - paddingPx),
-        size = Size(textWidth + 2 * paddingPx, textHeight + 2 * paddingPx),
+        size = Size(text.size.width + 2 * paddingPx, text.size.height + 2 * paddingPx),
         cornerRadius = CornerRadius(paddingPx)
     )
-    drawText(readout, topLeft = textTopLeft)
+    drawText(text, topLeft = textTopLeft)
 }

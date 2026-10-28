@@ -478,6 +478,7 @@ private fun PannableZoomableGrid(
     val ghostDashPx = with(density) { GHOST_DASH_LENGTH.toPx() }
     val handleGapPx = with(density) { HANDLE_GAP.toPx() }
     val handleHitRadiusPx = with(density) { HANDLE_HIT_RADIUS.toPx() }
+    val minZoneSizePx = with(density) { MIN_ZONE_SIZE_FOR_HANDLES.toPx() }
 
     // pointerInput(Unit) launches its gesture-detection coroutine once and never restarts it, so
     // anything it reads that can change later (transform, callbacks closing over growZones) must
@@ -506,6 +507,9 @@ private fun PannableZoomableGrid(
     val readoutLayout = remember(ghostZone?.widthCm, ghostZone?.depthCm, readoutStyle) {
         ghostZone?.let { textMeasurer.measure(sizeReadoutText(it.widthCm, it.depthCm), readoutStyle) }
     }
+    // Fixed text: measured once per style. Whether it shows depends on zoom, so that's decided in
+    // the draw block, not here (no extra per-frame composition work).
+    val zoomInHintLayout = remember(readoutStyle) { textMeasurer.measure(ZOOM_IN_HINT, readoutStyle) }
     // Read inside pointerInput(Unit), so it needs the same rememberUpdatedState treatment as above.
     val currentGhostDraw by rememberUpdatedState(ghostDraw)
     // Strokes (and the ghost's dash PathEffect) built once, not per frame (known_issues).
@@ -528,7 +532,9 @@ private fun PannableZoomableGrid(
                     if (ghost != null) {
                         val topLeft = ghost.topLeftPx * currentTransform.scale + currentTransform.translation
                         val size = ghost.sizePx * currentTransform.scale
-                        currentOnHandleTap(hitTestHandle(tapOffset, topLeft, size, handleGapPx, handleHitRadiusPx))
+                        currentOnHandleTap(
+                            hitTestHandle(tapOffset, topLeft, size, handleGapPx, handleHitRadiusPx, minZoneSizePx)
+                        )
                         return@detectTapGestures
                     }
                     val pointWorldPx = (tapOffset - currentTransform.translation) / currentTransform.scale
@@ -549,7 +555,7 @@ private fun PannableZoomableGrid(
                     val topLeft = ghost.topLeftPx * currentTransform.scale + currentTransform.translation
                     val size = ghost.sizePx * currentTransform.scale
                     val handle =
-                        hitTestHandle(down.position, topLeft, size, handleGapPx, handleHitRadiusPx)
+                        hitTestHandle(down.position, topLeft, size, handleGapPx, handleHitRadiusPx, minZoneSizePx)
                             ?: return@awaitEachGesture
                     val pastSlop =
                         awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
@@ -611,7 +617,11 @@ private fun PannableZoomableGrid(
                 size = size,
                 style = ghostStroke
             )
-            drawResizeHandles(topLeft, size, resizeAnchor, selectedHandle)
+            if (handlesFit(size, minZoneSizePx)) {
+                drawResizeHandles(topLeft, size, resizeAnchor, selectedHandle)
+            } else {
+                drawZoomInHint(zoomInHintLayout, topLeft, size, readoutBackground)
+            }
             if (readoutLayout != null) drawSizeReadout(readoutLayout, topLeft, size, readoutBackground)
         }
     }

@@ -202,6 +202,9 @@ Exit criteria:
 - Cells drawn per frame never exceed the bound at `MIN_SCALE`.
 - Manual: scale bar matches the grid on the emulator at several zoom levels; M5 on the
   stress Area shows no regression.
+- Manual: with the new zoom range, zooming out on a zone in Edit size hides its handles and
+  shows the "Zoom in to resize" hint below `MIN_ZONE_SIZE_FOR_HANDLES` (built preemptively in
+  3b, only reachable there with small zones).
 
 ## Phase 3 polish (last, after 3d)
 UX adjustments only, no new features or schema changes (roadmap.md, polish step). Collected
