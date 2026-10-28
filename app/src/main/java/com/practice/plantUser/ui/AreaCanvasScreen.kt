@@ -55,11 +55,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.practice.plantUser.data.displayName
+import com.practice.plantUser.model.Anchor
 import com.practice.plantUser.model.Area
 import com.practice.plantUser.model.GrowZone
 import com.practice.plantUser.model.GrowZoneType
 import com.practice.plantUser.model.formatCm
 import com.practice.plantUser.model.nestingRejectionReason
+import com.practice.plantUser.model.resize
 import com.practice.plantUser.ui.theme.PlantUserTheme
 
 private const val TAG = "AreaCanvasScreen"
@@ -94,6 +96,8 @@ private fun growZoneColor(type: GrowZoneType): Color = when (type) {
     GrowZoneType.WILD -> Color(0xFF64B5F6)
 }
 
+// FIX
+// topLeftPx should become anchor?
 private class DrawZone(val topLeftPx: Offset, val sizePx: Size, val fillColor: Color, val borderColor: Color)
 
 /** cm (Double) to draw-ready px (Float), converted once after the multiply (decisions.md). */
@@ -155,7 +159,8 @@ fun AreaCanvasScreen(
         val widthCm = editInput.widthCm
         val depthCm = editInput.depthCm
         if (editingZone != null && widthCm != null && depthCm != null) {
-            editingZone.copy(widthCm = widthCm, depthCm = depthCm)
+            // editingZone.copy(widthCm = widthCm, depthCm = depthCm)
+            resize(editingZone, widthCm, depthCm, Anchor.BOTTOM_LEFT)
         } else {
             null
         }
@@ -476,12 +481,15 @@ private fun PannableZoomableGrid(
             )
         }
         if (ghostDraw != null) {
+            val topLeft = ghostDraw.topLeftPx * transform.scale + transform.translation
+            val size = ghostDraw.sizePx * transform.scale
             drawRect(
                 color = ghostColor,
-                topLeft = ghostDraw.topLeftPx * transform.scale + transform.translation,
-                size = ghostDraw.sizePx * transform.scale,
+                topLeft = topLeft,
+                size = size,
                 style = ghostStroke
             )
+            drawResizeHandles(topLeft, size, Anchor.BOTTOM_LEFT)
         }
     }
 }

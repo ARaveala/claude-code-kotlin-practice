@@ -26,3 +26,8 @@ rather then recreate new every time.
   single source; domain_model.md links to it rather than duplicating.
   Idea: each phase adds its own stage as part of its exit criteria.
   Check GIF vs static screenshots for APK size and upkeep. Each how to is its own small demo.
+
+- tests i need to write , resize with different anchors do infact move the correct direction.
+- test negative values remain safe
+- test shrink stays within bounds. the visuals may show correct behaviour, test also that background code also stops calculating
+- make note of choosing to not allow flip due to simplicity and mirroring issues.

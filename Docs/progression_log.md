@@ -194,3 +194,15 @@ Gotcha: the Gradle
 - Move: an explicit Move panel replaces long-press and `position_locked` on GrowZone.
 - Positions may be negative, with Area borders a likely later addition, so every path that
   reads positions must handle negatives without crashing.
+
+
+**phase3b**
+- Drew circles to show rough layout of corner handlers for reszing the ghost growZone.
+- Refactored this new code and am trying to figure out how to best apply files and functions,
+as i noticed that AreaCanvasScreen.kt is getting large and messy . This needs to be refactored
+- added a resize that uses enum class to track anchor (this is drawing the handle marker at anchor marker, this may be a better way to inform user of anchor then a separate marker, choice yet to be made)
+- Todo has simple test concepts to next write
+TODAY
+- Tested manually the changing of Anchors does change edit size direction correctly
+- Adjusted topleft for finger gap drawResizeHandle and adjusted anchor for draw anchor.
+- added tests for resize to ensure that when we apply custome shapes, we dont mess with original functionality . (worth noting in the phase that this test may throw red)
