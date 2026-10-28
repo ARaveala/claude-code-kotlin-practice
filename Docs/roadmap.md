@@ -8,6 +8,12 @@ roadmap refers to.
 Each phase should be tested and working before moving to the next,
 same "test proves correctness" standard as MariaDB work, not just eyeballed.
 
+Each numbered phase ends with a **polish** step: UX adjustments collected while building and
+from real-device use (layout, readability, small conveniences). No new features or schema
+changes; anything bigger becomes its own phase. Ideas go into that phase's polish list as they
+come up, instead of being built mid-feature. A polish item may be pulled forward into a
+feature sub-phase when that work touches the same code anyway; evaluate it at that time.
+
 - [ ] **Phase 0 — Entry point (skip for now)**
   No login/username. App opens straight to the Area list. Can be added
   later without touching the domain model below it.
@@ -57,6 +63,7 @@ same "test proves correctness" standard as MariaDB work, not just eyeballed.
   - [ ] 3c: move through an explicit Move panel (no `position_locked` on GrowZone);
     children travel with the parent
   - [ ] 3d: `bounds_enforced` collision enforcement + visual feedback
+  - [ ] Phase 3 polish: last, after 3d (list in phase_3.md)
   Overall exit criterion: a GrowZone can be created, resized from any corner (typed or
   dragged, numerically identical), moved, and nested with real containment, on a canvas whose
   grid shows true scale. No PlacedItem work starts until this is solid.

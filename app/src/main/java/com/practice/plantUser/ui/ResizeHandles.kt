@@ -1,12 +1,16 @@
 package com.practice.plantUser.ui
 
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
 import com.practice.plantUser.model.Anchor
 import com.practice.plantUser.model.GrowZoneLimits
+import com.practice.plantUser.model.formatCm
 import kotlin.math.round
 
 // Handle sizes, all in dp; tune on a real phone (phase_3.md 3b, decisions.md 2026-10-20).
@@ -64,7 +68,7 @@ fun DrawScope.drawAnchor(center: Offset, radiusPx: Float, color: Color) {
 }
 
 fun DrawScope.drawResizeHandle(center: Offset, radiusPx: Float, color: Color) {
-    // this needs to change to drawing the handle image ( a grey or white square with arrow pointing out)
+    // Plain dot for now; the square-with-arrow handle is in the Phase 3 polish list (phase_3.md).
     drawCircle(
         color = color,
         radius = radiusPx,
@@ -90,4 +94,30 @@ fun DrawScope.drawResizeHandles(topLeft: Offset, size: Size, anchor: Anchor, sel
         topLeft.y + size.height * anchor.fy.toFloat()
     )
     drawAnchor(anchorPoint, ANCHOR_DOT_RADIUS.toPx(), Color.Black)
+}
+
+// Size readout above the ghost: gap above the top handle row, and padding inside its background.
+val READOUT_MARGIN = 8.dp
+val READOUT_PADDING = 4.dp
+
+/** The ghost's live size as shown on the canvas, e.g. "153 x 80 cm". */
+fun sizeReadoutText(widthCm: Double, depthCm: Double): String = "${formatCm(widthCm)} x ${formatCm(depthCm)} cm"
+
+/** [readout] centred above the ghost, clear of the top handle row, on a rounded background.
+ * The caller measures the text once per change; this only places it, so nothing allocates per
+ * frame (Offset, Size and CornerRadius are value classes). */
+fun DrawScope.drawSizeReadout(readout: TextLayoutResult, ghostTopLeft: Offset, ghostSize: Size, background: Color) {
+    val paddingPx = READOUT_PADDING.toPx()
+    val textWidth = readout.size.width.toFloat()
+    val textHeight = readout.size.height.toFloat()
+    // Bottom of the readout sits above the largest (selected) top handle, plus a margin.
+    val bottom = ghostTopLeft.y - HANDLE_GAP.toPx() - SELECTED_HANDLE_RADIUS.toPx() - READOUT_MARGIN.toPx()
+    val textTopLeft = Offset(ghostTopLeft.x + (ghostSize.width - textWidth) / 2f, bottom - paddingPx - textHeight)
+    drawRoundRect(
+        color = background,
+        topLeft = Offset(textTopLeft.x - paddingPx, textTopLeft.y - paddingPx),
+        size = Size(textWidth + 2 * paddingPx, textHeight + 2 * paddingPx),
+        cornerRadius = CornerRadius(paddingPx)
+    )
+    drawText(readout, topLeft = textTopLeft)
 }

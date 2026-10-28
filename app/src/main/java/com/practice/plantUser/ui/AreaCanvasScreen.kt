@@ -55,6 +55,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -363,6 +364,7 @@ fun AreaCanvasScreen(
                 selectedHandle = session?.selectedHandle,
                 selectionColor = MaterialTheme.colorScheme.primary,
                 ghostColor = MaterialTheme.colorScheme.onSurface,
+                readoutBackground = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                 onTransformChange = { transform = it },
                 onCanvasSizeChange = { canvasSizePx = it },
                 onTap = { pointCm -> onZoneTapped(hitTestZone(growZones, pointCm, focusedZoneId)?.id) },
@@ -457,6 +459,7 @@ private fun PannableZoomableGrid(
     selectedHandle: Anchor?,
     selectionColor: Color,
     ghostColor: Color,
+    readoutBackground: Color,
     onTransformChange: (CanvasTransform) -> Unit,
     onCanvasSizeChange: (Size) -> Unit,
     onTap: (pointCm: Offset) -> Unit,
@@ -495,6 +498,14 @@ private fun PannableZoomableGrid(
     // not per frame.
     val selectedIndex = remember(growZones, selectedZoneId) { growZones.indexOfFirst { it.id == selectedZoneId } }
     val ghostDraw = remember(ghostZone, growZones, cmToPx) { ghostZone?.let { toDrawZone(it, growZones, cmToPx) } }
+    // Size readout, measured once per size change, not per frame. The style copy is remembered too:
+    // this composable recomposes on every pan frame (known_issues), and copy() would allocate each time.
+    val textMeasurer = rememberTextMeasurer()
+    val labelStyle = MaterialTheme.typography.labelMedium
+    val readoutStyle = remember(labelStyle, ghostColor) { labelStyle.copy(color = ghostColor) }
+    val readoutLayout = remember(ghostZone?.widthCm, ghostZone?.depthCm, readoutStyle) {
+        ghostZone?.let { textMeasurer.measure(sizeReadoutText(it.widthCm, it.depthCm), readoutStyle) }
+    }
     // Read inside pointerInput(Unit), so it needs the same rememberUpdatedState treatment as above.
     val currentGhostDraw by rememberUpdatedState(ghostDraw)
     // Strokes (and the ghost's dash PathEffect) built once, not per frame (known_issues).
@@ -601,6 +612,7 @@ private fun PannableZoomableGrid(
                 style = ghostStroke
             )
             drawResizeHandles(topLeft, size, resizeAnchor, selectedHandle)
+            if (readoutLayout != null) drawSizeReadout(readoutLayout, topLeft, size, readoutBackground)
         }
     }
 }

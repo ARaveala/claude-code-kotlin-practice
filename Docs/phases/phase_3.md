@@ -202,3 +202,19 @@ Exit criteria:
 - Cells drawn per frame never exceed the bound at `MIN_SCALE`.
 - Manual: scale bar matches the grid on the emulator at several zoom levels; M5 on the
   stress Area shows no regression.
+
+## Phase 3 polish (last, after 3d)
+UX adjustments only, no new features or schema changes (roadmap.md, polish step). Collected
+while building; decide what's worth it after real-device testing (3b onwards). An item may be
+pulled forward into a sub-phase that touches the same code anyway; evaluate it at that time.
+- **Handle visuals.** Replace the plain dots with the intended handle (a small grey or white
+  square with an arrow pointing outward). Sizes stay the named dp constants in
+  `ui/ResizeHandles.kt`.
+- **Edge readouts.** A length label along each edge (width on top/bottom, depth on the sides),
+  like CAD dimension lines, instead of one readout above the ghost. Also useful later for
+  custom shapes, where each edge has its own length.
+- **Collapsible edit panel.** Put the panel away and bring it back, so it doesn't cover the
+  canvas (e.g. a bottom handle under the portrait panel). If it already blocks dragging on the
+  real phone, pull it forward into 3b as a usability fix.
+- **Readout stays on screen.** The size readout is drawn above the ghost and goes off screen
+  when the ghost's top edge is near the top; clamp it into view (or flip it below the ghost).
