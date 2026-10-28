@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
 import com.practice.plantUser.model.Anchor
+import com.practice.plantUser.model.GrowZoneLimits
+import kotlin.math.round
 
 // Handle sizes, all in dp; tune on a real phone (phase_3.md 3b, decisions.md 2026-10-20).
 // Gap = offset from the corner, about half the hit size, so the corner itself stays visible.
@@ -14,6 +16,15 @@ val HANDLE_HIT_RADIUS = 24.dp // 48 dp hit size
 val HANDLE_RADIUS = 4.dp
 val SELECTED_HANDLE_RADIUS = 7.dp
 val ANCHOR_DOT_RADIUS = 4.dp
+
+// Drag sizes round to whole cm: finer than a finger can place, and the fields stay readable.
+// Precision, not grid snapping (snapping is deferred, known_issues).
+const val DRAG_STEP_CM = 1.0
+
+/** [valueCm] rounded to [DRAG_STEP_CM], kept inside the size limits so a coarser step can't round
+ * below the minimum. kotlin.math.round rounds .5 to even; fine for a drag. */
+fun roundToDragStep(valueCm: Double): Double = (round(valueCm / DRAG_STEP_CM) * DRAG_STEP_CM)
+    .coerceIn(GrowZoneLimits.MIN_DIMENSION_CM, GrowZoneLimits.MAX_WIDTH_DEPTH_CM)
 
 /** Screen centre of [corner]'s handle: the corner pushed out diagonally by [gapPx].
  * (2f - 1) is -1 on the left/top and +1 on the right/bottom. Shared by drawing and hit-testing. */

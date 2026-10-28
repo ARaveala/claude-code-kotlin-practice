@@ -24,6 +24,15 @@ fun absolutePositionCm(zone: GrowZone, allZones: List<GrowZone>): PositionCm {
     return PositionCm(xCm, yCm)
 }
 
+/** Where [zone]'s own frame starts on the canvas, in absolute cm: its parent's absolute position,
+ * or (0, 0) for a top-level zone. Subtract it from a canvas point to get the point in the frame
+ * the zone's xCm/yCm are stored in. Computed once per drag, not per frame. */
+fun parentOriginCm(zone: GrowZone, allZones: List<GrowZone>): PositionCm {
+    // Absolute position minus the zone's own offset = where its parent's frame starts.
+    val absolute = absolutePositionCm(zone, allZones)
+    return PositionCm(absolute.xCm - zone.xCm, absolute.yCm - zone.yCm)
+}
+
 /**
  * The smallest (innermost) zone whose absolute bounds contain [pointCm], or null if none. Smallest
  * wins so tapping inside a nested child selects the child, not the parent zone it sits inside.

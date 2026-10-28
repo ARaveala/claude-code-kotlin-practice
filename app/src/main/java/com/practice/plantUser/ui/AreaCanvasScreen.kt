@@ -3,8 +3,12 @@ package com.practice.plantUser.ui
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -59,6 +63,8 @@ import com.practice.plantUser.model.Anchor
 import com.practice.plantUser.model.Area
 import com.practice.plantUser.model.GrowZone
 import com.practice.plantUser.model.GrowZoneType
+import com.practice.plantUser.model.PositionCm
+import com.practice.plantUser.model.dragResize
 import com.practice.plantUser.model.formatCm
 import com.practice.plantUser.model.nestingRejectionReason
 import com.practice.plantUser.model.resize
@@ -142,6 +148,8 @@ fun AreaCanvasScreen(
     // top-left anchor. An enum is Serializable, so rememberSaveable keeps it across rotation.
     var selectedHandle by rememberSaveable { mutableStateOf<Anchor?>(null) }
     val resizeAnchor = selectedHandle?.opposite ?: Anchor.TOP_LEFT
+    // Set at handle drag start, read on every drag frame (never in composition, so no recompose).
+    var dragParentOrigin by remember { mutableStateOf(PositionCm(0.0, 0.0)) }
     var canvasSizePx by remember { mutableStateOf(Size.Zero) }
     val density = LocalDensity.current
     val cmToPx = with(density) { CM_TO_DP.toPx() }
@@ -234,6 +242,42 @@ fun AreaCanvasScreen(
         selectedHandle = handle
     }
 
+    // Grabbing a handle selects it, so its opposite corner is the anchor for the whole drag.
+    fun onHandleDragStart(handle: Anchor) {
+        val zone = editingZone
+        if (zone == null) {
+            Log.e(TAG, "onHandleDragStart: handle=$handle but no zone is being edited (editingZoneId=$editingZoneId)")
+            return
+        }
+        selectedHandle = handle
+        dragParentOrigin = parentOriginCm(zone, growZones)
+        Log.d(TAG, "onHandleDragStart: handle=$handle zoneId=${zone.id} parentOrigin=$dragParentOrigin")
+    }
+
+    // Per drag frame: the dragged corner (absolute cm) -> zone frame -> dragResize -> the size
+    // fields. The fields stay the single source of truth, so ghost, warning and Save are the typed
+    // path unchanged. Allocates per frame: two Strings, plus dragResize's GrowZone copies.
+    fun onHandleDrag(cornerCm: Offset) {
+        val zone = editingZone ?: return
+        val anchor = selectedHandle?.opposite ?: return
+        val resized = dragResize(
+            zone,
+            anchor,
+            cornerCm.x - dragParentOrigin.xCm,
+            cornerCm.y - dragParentOrigin.yCm
+        )
+        editWidthText = formatCm(roundToDragStep(resized.widthCm))
+        editDepthText = formatCm(roundToDragStep(resized.depthCm))
+        editWarningCm = null
+    }
+
+    fun onHandleDragEnd() {
+        Log.d(
+            TAG,
+            "onHandleDragEnd: zoneId=$editingZoneId handle=$selectedHandle -> $editWidthText x $editDepthText cm"
+        )
+    }
+
     fun applyEdit() {
         val id = editingZoneId
         val widthCm = editInput.widthCm
@@ -321,6 +365,9 @@ fun AreaCanvasScreen(
                 onCanvasSizeChange = { canvasSizePx = it },
                 onTap = { pointCm -> onZoneTapped(hitTestZone(growZones, pointCm, focusedZoneId)?.id) },
                 onHandleTap = { onHandleTapped(it) },
+                onHandleDragStart = { onHandleDragStart(it) },
+                onHandleDrag = { onHandleDrag(it) },
+                onHandleDragEnd = { onHandleDragEnd() },
                 cmToPx = cmToPx,
                 modifier = Modifier.fillMaxSize()
             )
@@ -420,6 +467,9 @@ private fun PannableZoomableGrid(
     onCanvasSizeChange: (Size) -> Unit,
     onTap: (pointCm: Offset) -> Unit,
     onHandleTap: (Anchor?) -> Unit,
+    onHandleDragStart: (Anchor) -> Unit,
+    onHandleDrag: (cornerCm: Offset) -> Unit,
+    onHandleDragEnd: () -> Unit,
     cmToPx: Float,
     modifier: Modifier = Modifier
 ) {
@@ -440,6 +490,9 @@ private fun PannableZoomableGrid(
     val currentOnTransformChange by rememberUpdatedState(onTransformChange)
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnHandleTap by rememberUpdatedState(onHandleTap)
+    val currentOnHandleDragStart by rememberUpdatedState(onHandleDragStart)
+    val currentOnHandleDrag by rememberUpdatedState(onHandleDrag)
+    val currentOnHandleDragEnd by rememberUpdatedState(onHandleDragEnd)
 
     val drawZones = remember(growZones, cmToPx) {
         growZones.map { zone -> toDrawZone(zone, growZones, cmToPx) }
@@ -480,6 +533,41 @@ private fun PannableZoomableGrid(
                 detectTransformGestures { centroid, pan, zoom, _ ->
                     val updated = updateTransform(currentTransform, centroid, pan, zoom, MIN_SCALE, MAX_SCALE)
                     currentOnTransformChange(updated)
+                }
+            }.pointerInput(Unit) {
+                // Handle drag. Declared last so it sees each event first (Compose's main pass runs
+                // the innermost modifier first). Consuming the move past touch slop cancels the pan
+                // above; a press that never moves isn't consumed, so it stays a tap (handle select).
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val ghost = currentGhostDraw ?: return@awaitEachGesture
+                    val topLeft = ghost.topLeftPx * currentTransform.scale + currentTransform.translation
+                    val size = ghost.sizePx * currentTransform.scale
+                    val handle =
+                        hitTestHandle(down.position, topLeft, size, handleGapPx, handleHitRadiusPx)
+                            ?: return@awaitEachGesture
+                    val pastSlop =
+                        awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+                            ?: return@awaitEachGesture
+                    // No jump: keep the finger's offset from the grabbed corner (not the handle
+                    // centre, which sits a gap outside it) for the whole drag.
+                    val corner = Offset(
+                        topLeft.x + size.width * handle.fx.toFloat(),
+                        topLeft.y + size.height * handle.fy.toFloat()
+                    )
+                    val grabOffset = corner - down.position
+                    currentOnHandleDragStart(handle)
+                    // Screen px -> absolute cm, same conversion as the tap. Pan is cancelled during
+                    // the drag, so the transform is stable.
+                    val cornerCmAt = { fingerPx: Offset ->
+                        (fingerPx + grabOffset - currentTransform.translation) / currentTransform.scale / cmToPx
+                    }
+                    currentOnHandleDrag(cornerCmAt(pastSlop.position))
+                    drag(pastSlop.id) { change ->
+                        change.consume()
+                        currentOnHandleDrag(cornerCmAt(change.position))
+                    }
+                    currentOnHandleDragEnd()
                 }
             }
     ) {

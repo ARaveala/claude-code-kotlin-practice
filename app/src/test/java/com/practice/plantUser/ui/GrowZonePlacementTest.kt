@@ -82,6 +82,26 @@ class AbsolutePositionCmTest {
     }
 }
 
+class ParentOriginCmTest {
+    @Test
+    fun `nested zone's frame starts at its parent's absolute position`() {
+        // Drag gives the finger in absolute canvas cm, but a nested zone's x/y are parent-relative.
+        // Naive version (no conversion) treats every zone as top-level: a child's dragged corner
+        // lands off by its parent's offset. Two levels so a one-level-only walk fails too.
+        val grandparent = zone(id = 1, parentGrowZoneId = null, xCm = 100.0, yCm = 200.0)
+        val parent = zone(id = 2, parentGrowZoneId = 1, xCm = 10.0, yCm = 20.0)
+        val child = zone(id = 3, parentGrowZoneId = 2, xCm = 5.0, yCm = 5.0)
+
+        val result = parentOriginCm(child, listOf(grandparent, parent, child))
+
+        assertEquals(
+            "parentOriginCm(child of (10, 20) in (100, 200)) in ui/GrowZonePlacement.kt",
+            PositionCm(110.0, 220.0),
+            result
+        )
+    }
+}
+
 class HitTestZoneTest {
     @Test
     fun `point inside a zone's bounds returns that zone`() {
