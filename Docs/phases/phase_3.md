@@ -116,6 +116,23 @@ Build order after 3a: **3b, then 3e, then 3c, then 3d** (3e depends only on 3a; 
   - Testing on a real device starts here, to understand debugging and the real feel (handle
     sizes, touch slop, M6 on a real device).
 
+  **3b real-device checklist** (code done; first time on a physical phone). Record findings here
+  or in known_issues; constant changes go in `ui/ResizeHandles.kt`.
+  - Setup: USB debugging on, app installed and launched from Android Studio, logcat filtered
+    by tag (`AreaCanvasScreen`, `GrowZoneViewModel`) to follow taps, drags and saves.
+  - Handle hit size: `HANDLE_HIT_RADIUS` 24 dp (48 dp target). Try 28-32 dp (56-64) if handles
+    are hard to grab. Visual size (`HANDLE_RADIUS`, `SELECTED_HANDLE_RADIUS`) and `HANDLE_GAP`.
+  - Drag feel: no jump on touch-down, whole-cm steps not jittery, clamp at 1 cm (no flip),
+    a tap without movement still selects a handle (touch slop).
+  - M6 on the phone: panning and pinching never select; panning the zone body in edit mode pans.
+  - Tap off a handle clears the selection (known_issues): annoying on a real finger or fine?
+  - Edit panel in portrait: does it cover bottom handles while dragging? If it blocks real use,
+    pull "collapsible edit panel" forward from the polish list.
+  - Size readout and "Zoom in to resize" hint readable; readout off screen near the top edge
+    (polish list) annoying in practice?
+  - Save after drag on a nested zone: zone lands where the ghost was, children stay put.
+  - Emulator oddities from known_issues (phantom pinch, stylus popup) reproduce on the phone or not.
+
 - [ ] **Phase 3c — Move**
   Still no collision enforcement. Pulled forward from old Phase 5 scope.
   - **Move button** in the action bar next to Enter and Edit size. It opens an inline panel with

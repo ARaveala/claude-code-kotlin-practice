@@ -6,6 +6,9 @@ explicitly asked otherwise.**
 
 ## Current phase
 Phase 3b (drag resize, handle sets the anchor). Scope and exit criteria: `Docs/phases/phase_3.md`.
+**Status:** 3b code is done and committed. Next: first real-phone testing, using the "3b
+real-device checklist" in `phase_3.md`. Tune constants from findings; new ideas go to the
+Phase 3 polish list, not into 3b.
 
 ## Safety Rules
 - Never auto-commit. Show the diff and let me review before committing.
