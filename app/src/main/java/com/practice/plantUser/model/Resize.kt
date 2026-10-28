@@ -8,7 +8,16 @@ enum class Anchor(val fx: Double, val fy: Double) {
     TOP_LEFT(0.0, 0.0),
     TOP_RIGHT(1.0, 0.0),
     BOTTOM_LEFT(0.0, 1.0),
-    BOTTOM_RIGHT(1.0, 1.0)
+    BOTTOM_RIGHT(1.0, 1.0);
+
+    /** The diagonally opposite corner: grabbing a handle makes this the anchor. */
+    val opposite: Anchor
+        get() = when (this) {
+            TOP_LEFT -> BOTTOM_RIGHT
+            TOP_RIGHT -> BOTTOM_LEFT
+            BOTTOM_LEFT -> TOP_RIGHT
+            BOTTOM_RIGHT -> TOP_LEFT
+        }
 }
 
 /** [zone] resized to [newWidthCm] x [newDepthCm] with its [anchor] corner unchanged. Typed entry,

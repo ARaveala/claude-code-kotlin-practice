@@ -205,4 +205,7 @@ as i noticed that AreaCanvasScreen.kt is getting large and messy . This needs to
 TODAY
 - Tested manually the changing of Anchors does change edit size direction correctly
 - Adjusted topleft for finger gap drawResizeHandle and adjusted anchor for draw anchor.
-- added tests for resize to ensure that when we apply custome shapes, we dont mess with original functionality . (worth noting in the phase that this test may throw red)
+- added tests for resize to ensure that when we apply custome shapes, we dont mess with original functionality . (worth noting in the phase that this test may throw red), manually red tested by changing enum values
+- tested for drag resize and its potential flip, clamped so we dont get a flip
+- error noticed where resizing based on anchor seems to anchor based on top left still, fixed
+- noticed error when nested zone resizes child moves with

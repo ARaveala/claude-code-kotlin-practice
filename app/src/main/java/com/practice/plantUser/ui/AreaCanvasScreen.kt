@@ -96,8 +96,6 @@ private fun growZoneColor(type: GrowZoneType): Color = when (type) {
     GrowZoneType.WILD -> Color(0xFF64B5F6)
 }
 
-// FIX
-// topLeftPx should become anchor?
 private class DrawZone(val topLeftPx: Offset, val sizePx: Size, val fillColor: Color, val borderColor: Color)
 
 /** cm (Double) to draw-ready px (Float), converted once after the multiply (decisions.md). */
@@ -125,7 +123,7 @@ fun AreaCanvasScreen(
         heightCm: Double?,
         parentId: Long?
     ) -> Unit,
-    onResizeGrowZone: (id: Long, widthCm: Double, depthCm: Double, heightCm: Double?) -> Unit,
+    onResizeGrowZone: (id: Long, widthCm: Double, depthCm: Double, heightCm: Double?, anchor: Anchor) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -140,6 +138,10 @@ fun AreaCanvasScreen(
     var editDepthText by rememberSaveable { mutableStateOf("") }
     var editHeightText by rememberSaveable { mutableStateOf("") }
     var editWarningCm by rememberSaveable { mutableStateOf<Double?>(null) }
+    // Handle tapped while the edit panel is open; its opposite corner is the anchor. Null = 3a's
+    // top-left anchor. An enum is Serializable, so rememberSaveable keeps it across rotation.
+    var selectedHandle by rememberSaveable { mutableStateOf<Anchor?>(null) }
+    val resizeAnchor = selectedHandle?.opposite ?: Anchor.TOP_LEFT
     var canvasSizePx by remember { mutableStateOf(Size.Zero) }
     val density = LocalDensity.current
     val cmToPx = with(density) { CM_TO_DP.toPx() }
@@ -155,12 +157,11 @@ fun AreaCanvasScreen(
         checkSizeInput(editWidthText, editDepthText, editHeightText)
     }
     // Ghost preview: only while both parsed values are valid. Same Doubles applyEdit() sends.
-    val ghostZone = remember(editingZone, editInput) {
+    val ghostZone = remember(editingZone, editInput, resizeAnchor) {
         val widthCm = editInput.widthCm
         val depthCm = editInput.depthCm
         if (editingZone != null && widthCm != null && depthCm != null) {
-            // editingZone.copy(widthCm = widthCm, depthCm = depthCm)
-            resize(editingZone, widthCm, depthCm, Anchor.TOP_LEFT)
+            resize(editingZone, widthCm, depthCm, resizeAnchor)
         } else {
             null
         }
@@ -218,11 +219,19 @@ fun AreaCanvasScreen(
         editDepthText = formatCm(zone.depthCm)
         editHeightText = zone.heightCm?.let(::formatCm) ?: ""
         editWarningCm = null
+        selectedHandle = null
     }
 
     fun closeEditPanel() {
         editingZoneId = null
         editWarningCm = null
+        selectedHandle = null
+    }
+
+    // Null = tap missed every handle, which clears the selection (back to the top-left anchor).
+    fun onHandleTapped(handle: Anchor?) {
+        Log.d(TAG, "onHandleTapped: handle=$handle (was $selectedHandle) zoneId=$editingZoneId")
+        selectedHandle = handle
     }
 
     fun applyEdit() {
@@ -238,7 +247,7 @@ fun AreaCanvasScreen(
             return
         }
         Log.d(TAG, "applyEdit: zoneId=$id -> ${widthCm}x$depthCm heightCm=${editInput.heightCm}")
-        onResizeGrowZone(id, widthCm, depthCm, editInput.heightCm)
+        onResizeGrowZone(id, widthCm, depthCm, editInput.heightCm, resizeAnchor)
         closeEditPanel()
     }
 
@@ -304,11 +313,14 @@ fun AreaCanvasScreen(
                 transform = transform,
                 selectedZoneId = selectedZoneId,
                 ghostZone = ghostZone,
+                resizeAnchor = resizeAnchor,
+                selectedHandle = selectedHandle,
                 selectionColor = MaterialTheme.colorScheme.primary,
                 ghostColor = MaterialTheme.colorScheme.onSurface,
                 onTransformChange = { transform = it },
                 onCanvasSizeChange = { canvasSizePx = it },
                 onTap = { pointCm -> onZoneTapped(hitTestZone(growZones, pointCm, focusedZoneId)?.id) },
+                onHandleTap = { onHandleTapped(it) },
                 cmToPx = cmToPx,
                 modifier = Modifier.fillMaxSize()
             )
@@ -400,11 +412,14 @@ private fun PannableZoomableGrid(
     transform: CanvasTransform,
     selectedZoneId: Long?,
     ghostZone: GrowZone?,
+    resizeAnchor: Anchor,
+    selectedHandle: Anchor?,
     selectionColor: Color,
     ghostColor: Color,
     onTransformChange: (CanvasTransform) -> Unit,
     onCanvasSizeChange: (Size) -> Unit,
     onTap: (pointCm: Offset) -> Unit,
+    onHandleTap: (Anchor?) -> Unit,
     cmToPx: Float,
     modifier: Modifier = Modifier
 ) {
@@ -414,6 +429,8 @@ private fun PannableZoomableGrid(
     val zoneBorderPx = with(density) { ZONE_BORDER_WIDTH.toPx() }
     val selectedBorderPx = with(density) { SELECTED_BORDER_WIDTH.toPx() }
     val ghostDashPx = with(density) { GHOST_DASH_LENGTH.toPx() }
+    val handleGapPx = with(density) { HANDLE_GAP.toPx() }
+    val handleHitRadiusPx = with(density) { HANDLE_HIT_RADIUS.toPx() }
 
     // pointerInput(Unit) launches its gesture-detection coroutine once and never restarts it, so
     // anything it reads that can change later (transform, callbacks closing over growZones) must
@@ -422,6 +439,7 @@ private fun PannableZoomableGrid(
     val currentTransform by rememberUpdatedState(transform)
     val currentOnTransformChange by rememberUpdatedState(onTransformChange)
     val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnHandleTap by rememberUpdatedState(onHandleTap)
 
     val drawZones = remember(growZones, cmToPx) {
         growZones.map { zone -> toDrawZone(zone, growZones, cmToPx) }
@@ -430,6 +448,8 @@ private fun PannableZoomableGrid(
     // not per frame.
     val selectedIndex = remember(growZones, selectedZoneId) { growZones.indexOfFirst { it.id == selectedZoneId } }
     val ghostDraw = remember(ghostZone, growZones, cmToPx) { ghostZone?.let { toDrawZone(it, growZones, cmToPx) } }
+    // Read inside pointerInput(Unit), so it needs the same rememberUpdatedState treatment as above.
+    val currentGhostDraw by rememberUpdatedState(ghostDraw)
     // Strokes (and the ghost's dash PathEffect) built once, not per frame (known_issues).
     val zoneBorderStroke = remember(zoneBorderPx) { Stroke(width = zoneBorderPx) }
     val selectedStroke = remember(selectedBorderPx) { Stroke(width = selectedBorderPx) }
@@ -444,6 +464,15 @@ private fun PannableZoomableGrid(
             .onSizeChanged { onCanvasSizeChange(it.toSize()) }
             .pointerInput(Unit) {
                 detectTapGestures { tapOffset ->
+                    // Edit mode with handles showing: taps only select or clear a handle, no zone
+                    // hit-test (phase_3.md 3b). Same screen-space rect the handles are drawn on.
+                    val ghost = currentGhostDraw
+                    if (ghost != null) {
+                        val topLeft = ghost.topLeftPx * currentTransform.scale + currentTransform.translation
+                        val size = ghost.sizePx * currentTransform.scale
+                        currentOnHandleTap(hitTestHandle(tapOffset, topLeft, size, handleGapPx, handleHitRadiusPx))
+                        return@detectTapGestures
+                    }
                     val pointWorldPx = (tapOffset - currentTransform.translation) / currentTransform.scale
                     currentOnTap(pointWorldPx / cmToPx)
                 }
@@ -489,7 +518,7 @@ private fun PannableZoomableGrid(
                 size = size,
                 style = ghostStroke
             )
-            drawResizeHandles(topLeft, size, Anchor.TOP_LEFT)
+            drawResizeHandles(topLeft, size, resizeAnchor, selectedHandle)
         }
     }
 }
@@ -619,7 +648,7 @@ private fun AreaCanvasScreenPreview() {
             area = Area(1L, "Backyard"),
             growZones = emptyList(),
             onAddGrowZone = { _, _, _, _, _, _ -> },
-            onResizeGrowZone = { _, _, _, _ -> },
+            onResizeGrowZone = { _, _, _, _, _ -> },
             onBack = {}
         )
     }

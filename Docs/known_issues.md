@@ -88,6 +88,11 @@ bugs, nothing needs fixing now.
   showing which way the zone grows may help; decide after real-device use.
   — after 3b
 
+- **Any tap off a handle clears the handle selection in edit mode.** phase_3.md says tapping
+  the zone body clears it; empty canvas clears it too for now. Check on a real device whether
+  a missed handle tap (fat finger) clearing the selection is annoying.
+  — 3b device testing
+
 - **Undo for resize/move.** Leave room for an undo button in the panels. Likely more useful once
   custom shapes exist (many vertex edits).
   — Phase 3.5+ / custom shapes
