@@ -15,6 +15,7 @@ Docs/private.md
 build/
 *.apk
 *.aab
+.kotlin/
 
 # IDE workspace state
 .idea
