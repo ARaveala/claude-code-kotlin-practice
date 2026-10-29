@@ -31,3 +31,4 @@ rather then recreate new every time.
 - test negative values remain safe
 - test shrink stays within bounds. the visuals may show correct behaviour, test also that background code also stops calculating
 - make note of choosing to not allow flip due to simplicity and mirroring issues.
+- create some kind of way to follow battery usage, as is now its fine , but need a way to see if there is a sudden eseclation , so the issue can be understood and handled from that moemnt not later.

@@ -87,6 +87,9 @@ use `rememberSaveable`.
 without the zoom (shows "inside a zone" at default zoom).
 **Revisit if:** the device feel test shows re-finding the zone is annoying
 (then: save focus, recompute with `fitTransform` once measured).
+**Revisit triggered 2026-10-29:** on a real phone the reset is annoying inside a zone, in Edit
+size and with a zone selected. Selection and edit draft survive; only the repositioning is the
+problem. Planned replacement as above; tracked in the phase_3.md polish list.
 
 ### “2026-10-15 — cm to Float conversion happens once, at the draw boundary.
 **Decision:** AbsolutePositionCm returns PositionCm (Double) and sums in Double; hitTestZone compares in Double; fitTransform and the canvas convert after the multiply. The canvas precomputes draw-ready DrawZone values with remember.

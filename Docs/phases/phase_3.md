@@ -120,18 +120,20 @@ Build order after 3a: **3b, then 3e, then 3c, then 3d** (3e depends only on 3a; 
   or in known_issues; constant changes go in `ui/ResizeHandles.kt`.
   - Setup: USB debugging on, app installed and launched from Android Studio, logcat filtered
     by tag (`AreaCanvasScreen`, `GrowZoneViewModel`) to follow taps, drags and saves.
-  - Handle hit size: `HANDLE_HIT_RADIUS` 24 dp (48 dp target). Try 28-32 dp (56-64) if handles
-    are hard to grab. Visual size (`HANDLE_RADIUS`, `SELECTED_HANDLE_RADIUS`) and `HANDLE_GAP`.
-  - Drag feel: no jump on touch-down, whole-cm steps not jittery, clamp at 1 cm (no flip),
+  - Handle hit size: feels good, better tested once we prettify the handles.
+  - Drag feel: no jump on touch down, whole cm steps not jittery, clamp at 1 cm (no flip),
     a tap without movement still selects a handle (touch slop).
-  - M6 on the phone: panning and pinching never select; panning the zone body in edit mode pans.
-  - Tap off a handle clears the selection (known_issues): annoying on a real finger or fine?
+  - M6 on the phone: panning and pinching never select = true; panning the zone body in edit mode pans = false.
+  - Tap off a handle clears the selection (known_issues): works well on Sony j110
   - Edit panel in portrait: does it cover bottom handles while dragging? If it blocks real use,
-    pull "collapsible edit panel" forward from the polish list.
+    pull "collapsible edit panel" forward from the polish list.---
   - Size readout and "Zoom in to resize" hint readable; readout off screen near the top edge
-    (polish list) annoying in practice?
+    (polish list) not annoying in practice, just impractical?
   - Save after drag on a nested zone: zone lands where the ghost was, children stay put.
-  - Emulator oddities from known_issues (phantom pinch, stylus popup) reproduce on the phone or not.
+  - Emulator oddities from known_issues (phantom pinch, stylus popup) i have not been able to reproduce on sony 110.
+  - **Results 2026-10-29:** no serious problems. Zoom-in hint and dark mode work. Findings:
+    keyboard covers the edit panel, rotation resets the view, no auto-pan while dragging
+    (polish list below); edit the entered zone, edit name, CloseGuard warning (known_issues).
 
 - [ ] **Phase 3c — Move**
   Still no collision enforcement. Pulled forward from old Phase 5 scope.
@@ -232,9 +234,23 @@ pulled forward into a sub-phase that touches the same code anyway; evaluate it a
   `ui/ResizeHandles.kt`.
 - **Edge readouts.** A length label along each edge (width on top/bottom, depth on the sides),
   like CAD dimension lines, instead of one readout above the ghost. Also useful later for
-  custom shapes, where each edge has its own length.
+  custom shapes, where each edge has its own length. Open: show every side, or only the two
+  that change? The on/off "show sizes" toggle outside the edit panel is a new feature, so it's
+  in known_issues (evaluate at 3e), reusing this drawing.
 - **Collapsible edit panel.** Put the panel away and bring it back, so it doesn't cover the
   canvas (e.g. a bottom handle under the portrait panel). If it already blocks dragging on the
   real phone, pull it forward into 3b as a usability fix.
-- **Readout stays on screen.** The size readout is drawn above the ghost and goes off screen
-  when the ghost's top edge is near the top; clamp it into view (or flip it below the ghost).
+- **Readout follows the dragged handle.** While dragging, show the size next to the active
+  handle, offset about 48 dp from the finger (not under it, where the finger hides it), so
+  the size is always in view. Also fixes the readout going off screen when the ghost's top edge
+  is near the top (otherwise: clamp it into view or flip it below the ghost). When idle, the
+  edge readouts above. Do together with the collapsible edit panel: with the panel put away,
+  this is the only place the size shows.
+- **Edit panel above the keyboard.** On the phone the keyboard covers the edit panel while
+  typing sizes. Move the panel up with the keyboard (window insets). Found 2026-10-29; affects
+  every typed edit, so a candidate to pull forward.
+- **Keep the view on rotation.** Rotation resets zoom, pan and the entered zone (provisional
+  decision, decisions.md 2026-10-14; revisit triggered on the phone 2026-10-29). Save focus
+  and recompute the view with `fitTransform` once measured. Candidate to pull forward.
+- **Auto-pan while drag resizing.** The canvas doesn't pan when the finger nears the screen
+  edge during a handle drag; users will likely expect it (found 2026-10-29).

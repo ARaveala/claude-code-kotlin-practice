@@ -202,10 +202,35 @@ Gotcha: the Gradle
 as i noticed that AreaCanvasScreen.kt is getting large and messy . This needs to be refactored
 - added a resize that uses enum class to track anchor (this is drawing the handle marker at anchor marker, this may be a better way to inform user of anchor then a separate marker, choice yet to be made)
 - Todo has simple test concepts to next write
-TODAY
-- Tested manually the changing of Anchors does change edit size direction correctly
-- Adjusted topleft for finger gap drawResizeHandle and adjusted anchor for draw anchor.
-- added tests for resize to ensure that when we apply custome shapes, we dont mess with original functionality . (worth noting in the phase that this test may throw red), manually red tested by changing enum values
-- tested for drag resize and its potential flip, clamped so we dont get a flip
-- error noticed where resizing based on anchor seems to anchor based on top left still, fixed
-- noticed error when nested zone resizes child moves with
+**Phase 3b (2026-10-28)**
+- Tested by hand that changing the anchor changes the resize direction correctly.
+- Adjusted the top-left finger gap in `drawResizeHandle` and the anchor position in the anchor
+  marker drawing.
+- Added `resize()` tests so custom shapes later can't silently break the four-corner behaviour.
+  Red-tested them by hand by swapping enum values (worth noting in the phase: these may go red
+  when custom shapes land).
+- Tested drag resize for a flip past zero size: red, then clamped at 1 cm.
+- Found that resizing from a non-top-left anchor still anchored at top left. Fixed.
+- Found that resizing a nested zone moved its children with it. Fixed: children now keep their
+  absolute positions.
+
+**Phase 3b real-device test (2026-10-29)**
+First time on a physical phone (USB debugging, installed and launched from Android Studio,
+logcat filtered by tag). Everything worked; no serious problems, only UX findings.
+- Works: the "Zoom in to resize" hint, and dark mode looks good.
+- Keyboard covers the edit panel while typing sizes. The panel should move up above the
+  keyboard (phase_3.md polish list).
+- Drag resize doesn't pan the canvas when the finger nears the screen edge. Users will likely
+  expect it (polish list).
+- Rotation resets the view (zoom, pan, entered zone) to the starting position. This was the
+  provisional decision (decisions.md 2026-10-14), but on a real phone it's annoying, whether
+  inside a zone, in Edit size or with a zone selected. The selection and edit draft survive;
+  only the repositioning is the problem. Decision revisited.
+- Once inside a zone, only its children can be tapped for Edit size; the entered zone itself
+  can't. Possible fix: a button for "edit this zone" (known_issues).
+- Want an edit name option, maybe a small button in the edit panel. Open: rename "Edit size" to
+  "Edit", or add a separate button (known_issues).
+- Logcat warning "A resource failed to call release", seemingly random, maybe after zooming out
+  (known_issues).
+- Idea: wider appeal for front-end testers through alternate uses, like planning a shed (other
+  shapes, images for tools). Noted in roadmap.md under non-rect shapes.

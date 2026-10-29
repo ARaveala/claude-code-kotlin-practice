@@ -78,6 +78,10 @@ feature sub-phase when that work touches the same code anyway; evaluate it at th
   (unnested) as well as inside a GrowZone. Free drag placement, pots
   and holes may be exempt from wall collision (domain_model.md), so
   this needs no containment math, unlike Phase 3's GrowZone placement.
+  - Consider after Phase 4: **measure between two points** (tap, tap, show the distance), for
+    spacing pots/holes, path widths, distance to a fence. Wait until 3e's grid and scale bar
+    are in use; if measuring by grid still falls short, that's the evidence to build it.
+    Open: snap to corners/items, and does a measurement stay on the canvas?
 
 - [ ] **Phase 4.5 — Images (stretch, not core)**
   Image picker for GrowZone types and PlacedItems, replacing color
@@ -116,4 +120,5 @@ feature sub-phase when that work touches the same code anyway; evaluate it at th
 ? can we use square grid to aid here 
 ? how may a user want to draw for example a path that may not contain any plants , this makes things easier visually when navigating land. 
 ? is it better to use an image from map here? map image may not be good enough quality. 
-? considering custom objects 
+? considering custom objects
+? alternate uses beyond gardens (e.g. planning a shed: other shapes, images for tools) could widen the pool of front-end testers (idea from 2026-10-29)

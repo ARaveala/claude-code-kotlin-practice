@@ -26,6 +26,12 @@ Build/tooling gotchas, as they come up.
 
 - Add dependency in android studio quick fix, silently edited libs.versions.toml, causing build issues.
 
+- **Logcat: "A resource failed to call release" (W).** Seen on the real phone 2026-10-29,
+  seemingly random, possibly after zooming out. This is Android's CloseGuard: something was
+  garbage-collected without its close()/release(), so it's reported late (at GC), not where it
+  happened. Often framework/graphics code rather than ours. Next time, copy the full stack
+  trace: the class it names says whose resource it is.
+
 # Potential Concerns
 
 Design/architecture points worth remembering for future phases, not
@@ -75,6 +81,24 @@ bugs, nothing needs fixing now.
   Inspector first; compare with the Profiler-off baseline in canvas_benchmark/how_to.md.
   — Phase 3e
 
+- **Can't edit the entered zone itself.** Inside a zone only its children can be selected
+  for Edit size; the focused zone ignores taps (decisions.md 2026-10-14). Found annoying on the
+  phone 2026-10-29. Idea: a button (e.g. on the left, near add/back) for "edit this zone".
+  Check how it interacts with the focused zone ignoring taps before choosing.
+  — Phase 3 polish
+
+- **Edit name.** No way to rename a zone yet. Idea: a small edit button in the edit panel.
+  Open: rename "Edit size" to "Edit" and put both in one panel, or keep a separate button for
+  non-size edits (and later ones).
+  — Phase 3 polish or later
+
+- **"Show sizes" toggle outside edit mode.** A button that shows zone sizes on the canvas for
+  reference, without opening the edit panel. New feature, so not Phase 3 polish. Reuses the
+  edge readouts drawing (phase_3.md polish list). Needs a zoom cutoff: labels on many zones at
+  low zoom are clutter, like the "Zoom in to resize" threshold. Open: every zone or only the
+  selected one, every side or width/depth only.
+  — evaluate at Phase 3e (grid, scale bar and zoom range)
+
 - **Snapping (deferred).** Drag only, never typed values; a toggle next to the drag controls;
   the drag result passes through one pure function so it's a one-place change. Needs 3e's grid
   and real-device feel first (decisions.md 2026-10-20).
@@ -91,6 +115,7 @@ bugs, nothing needs fixing now.
 - **Any tap off a handle clears the handle selection in edit mode.** phase_3.md says tapping
   the zone body clears it; empty canvas clears it too for now. Check on a real device whether
   a missed handle tap (fat finger) clearing the selection is annoying.
+  sony j110 this works fine as is, there is a clear distinction between pan and finger "click"
   — 3b device testing
 
 - **Undo for resize/move.** Leave room for an undo button in the panels. Likely more useful once
