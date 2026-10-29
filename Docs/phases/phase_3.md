@@ -134,6 +134,12 @@ Build order after 3a: **3b, then 3e, then 3c, then 3d** (3e depends only on 3a; 
   - **Results 2026-10-29:** no serious problems. Zoom-in hint and dark mode work. Findings:
     keyboard covers the edit panel, rotation resets the view, no auto-pan while dragging
     (polish list below); edit the entered zone, edit name, CloseGuard warning (known_issues).
+  - **Fixed in 3b (2026-10-29): edit panel above the keyboard.** Pulled forward from the polish
+    list (affects every typed edit). `imePadding()` on the panel, `consumeWindowInsets` on the
+    canvas box so the bar insets aren't counted twice (edge-to-edge means `adjustResize` no
+    longer shrinks the window). Verified on the phone: portrait fully visible; landscape the
+    lower part of the centred panel is still covered, but the size fields stay visible.
+    Accepted as good enough.
 
 - [ ] **Phase 3c — Move**
   Still no collision enforcement. Pulled forward from old Phase 5 scope.
@@ -246,9 +252,6 @@ pulled forward into a sub-phase that touches the same code anyway; evaluate it a
   is near the top (otherwise: clamp it into view or flip it below the ghost). When idle, the
   edge readouts above. Do together with the collapsible edit panel: with the panel put away,
   this is the only place the size shows.
-- **Edit panel above the keyboard.** On the phone the keyboard covers the edit panel while
-  typing sizes. Move the panel up with the keyboard (window insets). Found 2026-10-29; affects
-  every typed edit, so a candidate to pull forward.
 - **Keep the view on rotation.** Rotation resets zoom, pan and the entered zone (provisional
   decision, decisions.md 2026-10-14; revisit triggered on the phone 2026-10-29). Save focus
   and recompute the view with `fitTransform` once measured. Candidate to pull forward.

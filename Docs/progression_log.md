@@ -218,8 +218,9 @@ as i noticed that AreaCanvasScreen.kt is getting large and messy . This needs to
 First time on a physical phone (USB debugging, installed and launched from Android Studio,
 logcat filtered by tag). Everything worked; no serious problems, only UX findings.
 - Works: the "Zoom in to resize" hint, and dark mode looks good.
-- Keyboard covers the edit panel while typing sizes. The panel should move up above the
-  keyboard (phase_3.md polish list).
+- Keyboard covers the edit panel while typing sizes. Fixed in 3b: the panel moves up with the
+  keyboard (`imePadding`). In landscape the lower part of the panel stays covered but the size
+  fields are visible; good enough.
 - Drag resize doesn't pan the canvas when the finger nears the screen edge. Users will likely
   expect it (polish list).
 - Rotation resets the view (zoom, pan, entered zone) to the starting position. This was the
